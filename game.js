@@ -340,6 +340,26 @@ const sfx = {
   buy() { tone(880, 880, 0.06, 'square', 0.05); tone(1320, 1320, 0.06, 'square', 0.05, 0.07); tone(1760, 1760, 0.14, 'square', 0.05, 0.14); oinkLite(0.3); },
   nope() { tone(220, 160, 0.18, 'square', 0.05); },
 };
+// ---------- Music (alternates between the tracks in assets/Music) ----------
+const TRACKS = ['assets/Music/Oink and Go.mp3', 'assets/Music/Sizzle and Soar.mp3'];
+const music = { el: null, idx: 0 };
+function startMusic() {
+  if (!music.el) {
+    const el = new Audio();
+    el.preload = 'auto'; el.volume = 0.4;
+    el.addEventListener('ended', () => { music.idx = (music.idx + 1) % TRACKS.length; el.src = encodeURI(TRACKS[music.idx]); syncMusic(); });
+    el.src = encodeURI(TRACKS[0]);
+    music.el = el;
+  }
+  syncMusic();
+}
+// Plays unless muted, paused or the tab is hidden
+function syncMusic() {
+  const el = music.el; if (!el) return;
+  if (muted || state === 'paused' || document.hidden) el.pause();
+  else if (el.paused) el.play().catch(() => {});
+}
+function toggleMute() { muted = !muted; $('muteBtn').textContent = muted ? 'Unmute' : 'Mute'; syncMusic(); }
 function oinkLite(d) { tone(500, 300, 0.12, 'sawtooth', 0.05, d); }
 
 // ---------- Puns ----------
@@ -392,6 +412,7 @@ pig = newPig();
 function startLevel(i) {
   levelIdx = i; level = LEVELS[i]; attempts = 0;
   hideAll();
+  startMusic();
   if (isTouch && !autoFsTried) { autoFsTried = true; enterFullscreen(); }
   resetAttempt();
 }
@@ -702,13 +723,21 @@ function drawCactus(x, y) {
   rrect(x + 12, y - 46, 10, 24, 5); ctx.fill(); ctx.fillRect(x + 6, y - 28, 16, 8);
 }
 function drawCoin(x, y, r = 11) {
-  const sx = Math.max(0.15, Math.abs(Math.cos(clock * 4 + x * 0.013)));
-  ctx.save(); ctx.translate(x, y); ctx.scale(sx, 1);
+  // Every coin is the same size; a shine sweeps across them in a wave (phase follows world x)
+  ctx.save(); ctx.translate(x, y);
   ctx.fillStyle = '#b77d00'; circle(0, 0, r); ctx.fill();
   ctx.fillStyle = '#ffd23f'; circle(0, 0, r - 2); ctx.fill();
+  ctx.strokeStyle = '#e8b21a'; ctx.lineWidth = 1.5; circle(0, 0, r - 4.5); ctx.stroke();
   ctx.fillStyle = '#e0a400'; ellipse(0, 1, r * 0.45, r * 0.36); ctx.fill();
   ctx.fillStyle = '#b77d00'; circle(-r * 0.17, 1, r * 0.1); ctx.fill(); circle(r * 0.17, 1, r * 0.1); ctx.fill();
-  ctx.fillStyle = 'rgba(255,255,255,0.7)'; circle(-r * 0.4, -r * 0.4, r * 0.17); ctx.fill();
+  ctx.fillStyle = 'rgba(255,255,255,0.7)'; circle(-r * 0.42, -r * 0.42, r * 0.17); ctx.fill();
+  const t = mod(clock * 0.9 - (x + camX) * 0.0025, 1.6);
+  if (t < 0.5) {
+    const sx = -r * 1.6 + (t / 0.5) * r * 3.2;
+    ctx.beginPath(); ctx.arc(0, 0, r - 2, 0, Math.PI * 2); ctx.clip();
+    ctx.fillStyle = 'rgba(255,255,255,0.75)';
+    ctx.beginPath(); ctx.moveTo(sx - 3, r); ctx.lineTo(sx + 3, r); ctx.lineTo(sx + 9, -r); ctx.lineTo(sx + 3, -r); ctx.closePath(); ctx.fill();
+  }
   ctx.restore();
 }
 function eggPath(x, y, s) {
@@ -1130,6 +1159,7 @@ function togglePause() {
     input.ptrs.clear(); input.kbUp = false; input.boostPtr = null; syncKeys();
     persist();
   } else if (state === 'paused') { state = 'playing'; $('pause').classList.add('hidden'); }
+  syncMusic();
 }
 function nextLevel() { if (levelIdx < LEVELS.length - 1) startLevel(levelIdx + 1); else showMenu(); }
 
@@ -1141,7 +1171,7 @@ $('shopBtn').onclick = () => { blurAll(); openShop('menu'); };
 $('shopBack').onclick = () => { blurAll(); closeShop(); };
 $('resumeBtn').onclick = () => { blurAll(); togglePause(); };
 $('restartBtn').onclick = () => { blurAll(); $('pause').classList.add('hidden'); resetAttempt(); };
-$('muteBtn').onclick = () => { muted = !muted; $('muteBtn').textContent = muted ? 'Unmute' : 'Mute'; };
+$('muteBtn').onclick = () => toggleMute();
 $('quitBtn').onclick = () => { blurAll(); showMenu(); };
 $('pauseBtn').onclick = () => { blurAll(); togglePause(); };
 
@@ -1201,7 +1231,7 @@ addEventListener('keydown', e => {
   } else if (e.key === 'Shift') { input.kbBoost = true; syncKeys(); }
   else if (e.code === 'KeyP' || (e.code === 'Escape' && !shopOpen)) togglePause();
   else if (e.code === 'Escape' && shopOpen) closeShop();
-  else if (e.code === 'KeyM') muted = !muted;
+  else if (e.code === 'KeyM') toggleMute();
   else if (e.code === 'KeyF') toggleFullscreen();
   else if (e.code === 'KeyR' && (state === 'playing' || state === 'dead')) resetAttempt();
   else if (e.code === 'Enter' && state === 'win' && winT > 1.6 && !shopOpen) nextLevel();
@@ -1237,7 +1267,7 @@ document.addEventListener('dblclick', e => e.preventDefault());
 
 function releaseAll() { input.kbUp = false; input.kbBoost = false; input.ptrs.clear(); input.boostPtr = null; boostBtn.classList.remove('on'); syncKeys(); }
 addEventListener('blur', () => { releaseAll(); if (state === 'playing') togglePause(); });
-document.addEventListener('visibilitychange', () => { if (document.hidden) { releaseAll(); if (state === 'playing') togglePause(); persist(); } });
+document.addEventListener('visibilitychange', () => { if (document.hidden) { releaseAll(); if (state === 'playing') togglePause(); persist(); } syncMusic(); });
 addEventListener('pagehide', persist);
 // Turning a phone to portrait mid-run pauses the game (the rotate prompt covers it)
 const portrait = matchMedia('(orientation: portrait) and (pointer: coarse)');
@@ -1261,12 +1291,12 @@ requestAnimationFrame(frame);
 // Exposed for debugging and automated play-testing in the console
 window.__pig = {
   get state() { return state; }, get pig() { return pig; }, get items() { return items; }, get objs() { return objs; },
-  get save() { return save; }, startLevel, LEVELS, HATS, keys, update, render, openShop,
+  get save() { return save; }, get music() { return music; }, startLevel, LEVELS, HATS, keys, update, render, openShop,
   // Automated play-testing: freezes save data (coins/eggs/bests) and sound until switched off
   testMode(on) {
     if (on && !noPersist) testSave = JSON.stringify(save);
     if (!on && noPersist && testSave) save = JSON.parse(testSave);
-    noPersist = on; muted = on;
+    noPersist = on; muted = on; syncMusic();
   },
   // Draws every hat on a pig into a canvas (handy for tuning hat fit): document.body.append(__pig.hatSheet())
   hatSheet() {
