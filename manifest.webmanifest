@@ -1,0 +1,14 @@
+{
+  "name": "When Pigs Fly",
+  "short_name": "Pigs Fly",
+  "description": "Fly a pig past spikes, frying pans and farmers to reach the mud spa.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "background_color": "#1b1430",
+  "theme_color": "#1b1430",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

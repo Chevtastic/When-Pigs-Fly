@@ -2,8 +2,16 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <title>When Pigs Fly</title>
+  <meta name="description" content="A flying pig, a lot of farm hazards and a mud spa at the end. Collect golden eggs, grab coins and buy hats.">
+  <meta name="theme-color" content="#1b1430">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Pigs Fly">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Lilita+One&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
@@ -12,29 +20,57 @@
   <div id="wrap">
     <canvas id="game"></canvas>
 
+    <!-- In-game buttons (pause / fullscreen / boost) -->
+    <div id="hudBtns" class="hidden">
+      <button id="fsBtn" class="icon fsToggle" aria-label="Full screen">
+        <svg viewBox="0 0 24 24" width="22" height="22"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <button id="pauseBtn" class="icon" aria-label="Pause">
+        <svg viewBox="0 0 24 24" width="22" height="22"><rect x="6" y="5" width="4" height="14" rx="1.5" fill="currentColor"/><rect x="14" y="5" width="4" height="14" rx="1.5" fill="currentColor"/></svg>
+      </button>
+    </div>
+    <button id="boostBtn" class="hidden" aria-label="Boost">⚡<small>BOOST</small></button>
+
     <div id="menu" class="overlay">
-      <div class="panel">
+      <div class="panel menuPanel">
         <h1>When Pigs Fly</h1>
-        <p class="tag">Dodge the farm. Reach the mud. Don't become breakfast.</p>
+        <p class="tag" id="tagline">Dodge the farm. Reach the mud. Don't become breakfast.</p>
+        <div class="stats">
+          <span class="pill"><i class="coin"></i><b id="menuCoins">0</b></span>
+          <span class="pill"><i class="egg"></i><b id="menuEggs">0/18</b></span>
+        </div>
         <div id="levels"></div>
-        <div class="controls">
+        <div class="btns">
+          <button id="shopBtn" class="primary">🎩 Ham-berdashery</button>
+          <button id="fsMenuBtn" class="fsToggle">Full screen</button>
+        </div>
+        <div class="controls desk">
           <span><kbd>Space</kbd> hold to fly up</span>
           <span><kbd>Shift</kbd> hold to go faster</span>
           <span><kbd>P</kbd> pause</span>
           <span><kbd>R</kbd> restart</span>
           <span><kbd>M</kbd> mute</span>
+          <span><kbd>F</kbd> full screen</span>
         </div>
-        <p class="hint">Press <kbd>Space</kbd> to start</p>
+        <div class="controls touch">
+          <span>Hold anywhere to fly</span>
+          <span>Hold ⚡ to go faster</span>
+        </div>
+        <p class="iosTip touch">On iPhone: tap Share → <b>Add to Home Screen</b> to play full screen.</p>
+        <p class="hint desk">Press <kbd>Space</kbd> to start</p>
       </div>
     </div>
 
     <div id="win" class="overlay hidden">
       <div class="panel">
         <h2 id="winTitle">Made it to the mud!</h2>
+        <div id="winEggs" class="eggRow"></div>
         <p id="winStats"></p>
+        <p id="winCoins"></p>
         <div class="btns">
           <button id="nextBtn" class="primary">Next level</button>
           <button id="replayBtn">Replay</button>
+          <button id="winShopBtn">🎩 Hats</button>
           <button id="menuBtn">Menu</button>
         </div>
       </div>
@@ -43,12 +79,42 @@
     <div id="pause" class="overlay hidden">
       <div class="panel">
         <h2>Paused</h2>
-        <p>Press <kbd>P</kbd> to keep flying</p>
+        <p id="pauseSub">Hold your hogs...</p>
         <div class="btns">
           <button id="resumeBtn" class="primary">Resume</button>
+          <button id="restartBtn">Restart</button>
+          <button id="muteBtn">Mute</button>
           <button id="quitBtn">Quit to menu</button>
         </div>
       </div>
+    </div>
+
+    <div id="shop" class="overlay hidden">
+      <div class="panel shopPanel">
+        <div class="shopHead">
+          <h2>The Ham-berdashery</h2>
+          <span class="pill"><i class="coin"></i><b id="shopCoins">0</b></span>
+          <span class="pill"><i class="egg"></i><b id="shopEggs">0</b></span>
+          <button id="shopBack" class="icon" aria-label="Close shop">✕</button>
+        </div>
+        <div class="shopBody">
+          <div class="preview">
+            <canvas id="preview"></canvas>
+            <div id="pvName">No hat</div>
+            <div id="pvDesc"></div>
+            <button id="pvBtn" class="primary">Equipped</button>
+          </div>
+          <div id="hatGrid"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <div id="rotate" class="overlay">
+    <div class="panel">
+      <div class="phone">📱</div>
+      <h2>Turn sideways!</h2>
+      <p>This pig needs a longer runway.</p>
     </div>
   </div>
   <script src="game.js"></script>
