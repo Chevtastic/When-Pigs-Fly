@@ -2,7 +2,7 @@
 
 A browser game where you play a flying pig. Dodge spikes, flying frying pans and farmers with pitchforks, and reach the big mud pile where the other pigs are waiting. Get hit and you turn into bacon.
 
-**Play it:** https://chevtastic.github.io/When-Pigs-Fly/
+**Play it:** https://whenpigsfly.chubkingdom.cc (also on [GitHub Pages](https://chevtastic.github.io/When-Pigs-Fly/))
 
 ## Controls
 
@@ -33,4 +33,12 @@ b.spikes(900, 3, 'floor', 45)        // x, count, 'floor' | 'ceil', height
  .tower(1850, 80, 170)               // hay bale topped with spikes
  .pan(2350, 260)                     // frying pan, meets the pig near x=2350 at height 260
  .farmer(2800, 160, 230, 2.2)        // x, min reach, max reach, jab period (s)
+```
+
+## Deploying to Cloudflare
+
+The site at whenpigsfly.chubkingdom.cc is a Cloudflare Worker serving static files (see `wrangler.jsonc`; `.assetsignore` keeps non-game files unpublished):
+
+```bash
+npx wrangler deploy
 ```

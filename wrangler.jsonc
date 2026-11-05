@@ -1,0 +1,11 @@
+// Cloudflare deploy config: serves the game's static files at whenpigsfly.chubkingdom.cc
+{
+  "name": "when-pigs-fly",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": "."
+  },
+  "routes": [
+    { "pattern": "whenpigsfly.chubkingdom.cc", "custom_domain": true }
+  ]
+}
