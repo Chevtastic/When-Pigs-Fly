@@ -282,7 +282,7 @@ for (const h of HATS) {
 
 // ---------- Save data ----------
 const SAVE_KEY = 'pigsfly-save';
-let save = { bests: {}, eggs: {}, coins: 0, owned: [], hat: null };
+let save = { bests: {}, eggs: {}, coins: 0, owned: [], hat: null, volume: 0.7 };
 try {
   const s = JSON.parse(localStorage.getItem(SAVE_KEY) || 'null');
   if (s && typeof s === 'object') save = Object.assign(save, s);
@@ -295,14 +295,17 @@ const totalEggs = () => LEVELS.reduce((n, _, i) => n + bits(levelEggs(i)), 0);
 const unlocked = i => i === 0 || !!save.bests[i - 1];
 
 // ---------- Audio (tiny synth, no files) ----------
-let actx = null, muted = false;
+let actx = null, testMuted = false;
+// Master volume 0..1 (saved); 0 = muted. Scales both sound effects and music.
+const muted = () => testMuted || !(save.volume > 0);
 function audio() {
   if (!actx) { try { actx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { actx = null; } }
   if (actx && actx.state === 'suspended') actx.resume();
   return actx;
 }
 function tone(f0, f1, dur, type = 'square', vol = 0.08, delay = 0) {
-  const a = audio(); if (!a || muted) return;
+  const a = audio(); if (!a || muted()) return;
+  vol *= save.volume * 1.3;
   const t0 = a.currentTime + delay;
   const o = a.createOscillator(), g = a.createGain();
   o.type = type;
@@ -314,7 +317,8 @@ function tone(f0, f1, dur, type = 'square', vol = 0.08, delay = 0) {
   o.start(t0); o.stop(t0 + dur + 0.02);
 }
 function noise(dur, vol, freq, type = 'highpass', delay = 0) {
-  const a = audio(); if (!a || muted) return;
+  const a = audio(); if (!a || muted()) return;
+  vol *= save.volume * 1.3;
   const t0 = a.currentTime + delay;
   const len = Math.floor(a.sampleRate * dur);
   const buf = a.createBuffer(1, len, a.sampleRate);
@@ -346,7 +350,7 @@ const music = { el: null, idx: 0 };
 function startMusic() {
   if (!music.el) {
     const el = new Audio();
-    el.preload = 'auto'; el.volume = 0.4;
+    el.preload = 'auto';
     el.addEventListener('ended', () => { music.idx = (music.idx + 1) % TRACKS.length; el.src = encodeURI(TRACKS[music.idx]); syncMusic(); });
     el.src = encodeURI(TRACKS[0]);
     music.el = el;
@@ -356,10 +360,26 @@ function startMusic() {
 // Plays unless muted, paused or the tab is hidden
 function syncMusic() {
   const el = music.el; if (!el) return;
-  if (muted || state === 'paused' || document.hidden) el.pause();
+  el.volume = clamp(save.volume * 0.55, 0, 1);
+  if (muted() || state === 'paused' || document.hidden) el.pause();
   else if (el.paused) el.play().catch(() => {});
 }
-function toggleMute() { muted = !muted; $('muteBtn').textContent = muted ? 'Unmute' : 'Mute'; syncMusic(); }
+let lastVolume = save.volume > 0 ? save.volume : 0.7;
+function setVolume(v, store = true) {
+  save.volume = clamp(v, 0, 1);
+  if (save.volume > 0) lastVolume = save.volume;
+  const pct = Math.round(save.volume * 100);
+  document.querySelectorAll('.vol').forEach(w => {
+    w.querySelector('input').value = pct;
+    w.querySelector('input').style.setProperty('--fill', pct + '%');
+    w.querySelector('.volPct').textContent = pct ? pct + '%' : 'Muted';
+    w.querySelector('.volIcon').textContent = !pct ? '🔇' : pct < 40 ? '🔈' : pct < 75 ? '🔉' : '🔊';
+    w.querySelector('.volIcon').setAttribute('aria-label', pct ? 'Mute' : 'Unmute');
+  });
+  syncMusic();
+  if (store) persist();
+}
+function toggleMute() { setVolume(save.volume > 0 ? 0 : lastVolume); }
 function oinkLite(d) { tone(500, 300, 0.12, 'sawtooth', 0.05, d); }
 
 // ---------- Puns ----------
@@ -1000,7 +1020,7 @@ function drawHUD() {
     drawEgg(108 + i * 24, 80, 0.6, mode);
   }
   text(`${levelT.toFixed(2)}s`, W - 16, 82, 20, '#fff', 'right');
-  if (muted) text('MUTED', W - 16, 106, 14, '#ffe1ea', 'right');
+  if (muted()) text('MUTED', W - 16, 106, 14, '#ffe1ea', 'right');
   if (state === 'playing' && keys.boost) text('⚡ BOOST', isTouch ? W - 140 : W - 16, H - 28, 24, '#ffe14d', 'right');
   if (state === 'playing' && attempts === 1 && levelT < 2.5) {
     ctx.globalAlpha = clamp(2.5 - levelT, 0, 1);
@@ -1155,7 +1175,6 @@ function togglePause() {
   if (state === 'playing') {
     state = 'paused'; $('pause').classList.remove('hidden');
     $('pauseSub').textContent = pick(PAUSE_LINES);
-    $('muteBtn').textContent = muted ? 'Unmute' : 'Mute';
     input.ptrs.clear(); input.kbUp = false; input.boostPtr = null; syncKeys();
     persist();
   } else if (state === 'paused') { state = 'playing'; $('pause').classList.add('hidden'); }
@@ -1171,7 +1190,12 @@ $('shopBtn').onclick = () => { blurAll(); openShop('menu'); };
 $('shopBack').onclick = () => { blurAll(); closeShop(); };
 $('resumeBtn').onclick = () => { blurAll(); togglePause(); };
 $('restartBtn').onclick = () => { blurAll(); $('pause').classList.add('hidden'); resetAttempt(); };
-$('muteBtn').onclick = () => toggleMute();
+document.querySelectorAll('.vol').forEach(w => {
+  const slider = w.querySelector('input');
+  slider.addEventListener('input', () => setVolume(slider.value / 100, false));
+  slider.addEventListener('change', () => { persist(); slider.blur(); if (save.volume > 0) sfx.coin(); });
+  w.querySelector('.volIcon').addEventListener('click', () => { blurAll(); toggleMute(); });
+});
 $('quitBtn').onclick = () => { blurAll(); showMenu(); };
 $('pauseBtn').onclick = () => { blurAll(); togglePause(); };
 
@@ -1225,6 +1249,7 @@ function pressUp() {
 }
 const UP_KEYS = ['Space', 'ArrowUp', 'KeyW'];
 addEventListener('keydown', e => {
+  if (e.target && e.target.tagName === 'INPUT') return; // arrow keys adjust a focused volume slider
   if (UP_KEYS.includes(e.code)) {
     e.preventDefault();
     if (!e.repeat) { input.kbUp = true; syncKeys(); pressUp(); }
@@ -1285,7 +1310,13 @@ function frame(now) {
   render();
   requestAnimationFrame(frame);
 }
+setVolume(save.volume, false);
 showMenu();
+// Music plays from the main menu. Browsers block sound until the first tap/click/key,
+// so try right away and again on the first interaction.
+startMusic();
+const kickMusic = () => { audio(); startMusic(); ['pointerdown', 'keydown', 'touchend'].forEach(ev => removeEventListener(ev, kickMusic, true)); };
+['pointerdown', 'keydown', 'touchend'].forEach(ev => addEventListener(ev, kickMusic, true));
 requestAnimationFrame(frame);
 
 // Exposed for debugging and automated play-testing in the console
@@ -1296,7 +1327,7 @@ window.__pig = {
   testMode(on) {
     if (on && !noPersist) testSave = JSON.stringify(save);
     if (!on && noPersist && testSave) save = JSON.parse(testSave);
-    noPersist = on; muted = on; syncMusic();
+    noPersist = on; testMuted = on; syncMusic();
   },
   // Draws every hat on a pig into a canvas (handy for tuning hat fit): document.body.append(__pig.hatSheet())
   hatSheet() {

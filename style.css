@@ -195,6 +195,36 @@ body.is-touch .desk { display: none; }
 body.no-fs .fsToggle { display: none; }
 body:not(.is-ios) .iosTip { display: none !important; }
 
+/* ---- volume slider ---- */
+.vol {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: #ffe1ea; border-radius: 14px; padding: 4px 12px 4px 4px;
+  box-shadow: 0 5px 0 #d9718f;
+  font-family: system-ui, sans-serif; font-weight: 800; font-size: clamp(12px, 1.5cqw, 15px);
+}
+#pause .vol { margin: 6px 0 2px; }
+.vol .volIcon {
+  padding: 0; width: 2em; height: 2em; font-size: clamp(14px, 1.8cqw, 18px);
+  background: transparent; box-shadow: none; display: grid; place-items: center;
+}
+.vol .volIcon:active { transform: scale(0.9); }
+.vol .volPct { min-width: 3.4em; text-align: left; }
+.vol input[type=range] {
+  -webkit-appearance: none; appearance: none;
+  width: clamp(90px, 14cqw, 150px); height: 10px; border-radius: 99px; margin: 0;
+  background: linear-gradient(to right, #ff6f9c var(--fill, 70%), rgba(90, 35, 64, 0.2) var(--fill, 70%));
+  touch-action: none; cursor: pointer;
+}
+.vol input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none;
+  width: 22px; height: 22px; border-radius: 50%;
+  background: #fff; border: 3px solid #5a2340; box-shadow: 0 2px 0 #2c1020;
+}
+.vol input[type=range]::-moz-range-thumb {
+  width: 16px; height: 16px; border-radius: 50%;
+  background: #fff; border: 3px solid #5a2340; box-shadow: 0 2px 0 #2c1020;
+}
+
 /* ---- in-game buttons ---- */
 #hudBtns {
   position: absolute;

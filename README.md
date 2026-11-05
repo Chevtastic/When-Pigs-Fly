@@ -12,7 +12,7 @@ A browser game where you play a flying pig. Dodge spikes, flying frying pans and
 | Hold **Shift** | Hold the ⚡ button | Go faster |
 | **P** / **Esc** | Pause button | Pause |
 | **R** | Pause → Restart | Restart level |
-| **M** | Pause → Mute | Mute |
+| **M** | Volume slider (menu or pause) | Mute, or drag the slider to set the volume |
 | **F** | Full screen button | Full screen |
 
 On phones the game goes full screen and locks to landscape when you start a level (Android/Chrome). iPhone Safari doesn't allow web pages to go full screen, so on iPhone use Share → **Add to Home Screen** and launch it from there.
