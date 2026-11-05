@@ -28,11 +28,11 @@ Each level unlocks when you clear the one before it.
 5. **Frost-Bitten Bacon**: snow, cleaver gauntlets and long tunnels
 6. **The Grand Hamyon**: canyon finale, everything at once
 
-## Golden eggs, coins and hats
+## Golden eggs, coins and the shop
 
 - Every level hides **3 golden eggs**, usually somewhere dangerous. An egg only counts once you finish the level, but you don't have to get all three in the same run. Each new egg pays a 25-coin bonus.
 - **Coins** are added to your wallet as soon as you grab them, even if you turn into bacon a second later. Clearing a level pays 10 coins, plus 40 the first time.
-- Spend coins in the **Ham-berdashery** (hat shop) from the menu or the level-complete screen. Try a hat on before buying it. The tiara needs 9 golden eggs and the crown needs all 18.
+- Spend coins in the **Ham-berdashery** from the menu or the level-complete screen. It has three tabs: **Hats**, **Wings** and **Effects** (trails and auras like glitter, flames and a halo). Everything can be tried on before you buy it. Some items also need golden eggs: the tiara needs 9, the gold wings 12, the halo 15 and the crown all 18.
 - Progress is saved in the browser's local storage.
 
 ## Running locally
@@ -54,7 +54,7 @@ b.spikes(900, 3, 'floor', 45)        // x, count, 'floor' | 'ceil', height
  .egg(3740, 196)                     // golden egg (exactly 3 per level)
 ```
 
-Hats live in `assets/hats/` and are listed in the `HATS` table in `game.js` (name, price, and how to fit them on the pig's head). To check how every hat sits on the pig, run `document.body.append(__pig.hatSheet())` in the browser console.
+Hats live in `assets/hats/` and are listed in the `HATS` table in `game.js` (name, price, and how to fit them on the pig's head).  Wings (`WINGS`) and effects (`FX`) are drawn in code, so new ones only need an entry in those tables. To check how every hat sits on the pig, run `document.body.append(__pig.hatSheet())` in the browser console.
 
 ## Deploying to Cloudflare
 

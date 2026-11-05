@@ -186,7 +186,7 @@ const LEVELS = [
        .spikes(7200, 15, 'floor', 70).spikes(7280, 12, 'ceil', 190).coins(7190, 295, 6).egg(7500, 376).coins(7600, 295, 5)
        .pan(8200, 150).pan(8200, 400).pan(8400, 275).coins(8100, 275, 4)
        .spikes(8820, 19, 'floor', 40).cleaver(8900, 250, 0.9, 1.6).cleaver(9200, 250, 0.9, 1.6, 2.1).cleaver(9500, 250, 0.9, 1.6, 4.2)
-       .coins(8800, 375, 4).egg(9200, 240).coins(9300, 375, 6)
+       .coins(8800, 375, 4).egg(9050, 320).coins(9300, 375, 6)
        .tower(10000, 80, 300).tower(10300, 80, 300, 'ceil').coins(9990, 130, 3).coins(10290, 390, 3)
        .farmer(10800, 180, 300, 1.0).farmer(11050, 180, 300, 1.0, 1.2).farmer(11300, 180, 300, 1.0, 2.4).coins(10720, 110, 17)
        .spikes(11800, 4, 'floor', 70).spikes(11800, 4, 'ceil', 200).coins(11780, 300, 5)
@@ -209,8 +209,8 @@ const LEVELS = [
        .tower(5800, 120, 300).tower(6100, 120, 300, 'ceil').coins(5800, 120, 3).coins(6100, 390, 3)
        .spikes(6600, 16, 'floor', 80).spikes(6680, 12, 'ceil', 200).coins(6590, 295, 16)
        .pan(7600, 200, 0, 240).pan(7750, 350, 0, 240).pan(7900, 200, 0, 240).pan(8050, 350, 0, 240)
-       .farmer(8350, 190, 300, 1.1).farmer(8750, 190, 300, 1.1, 1.8).coins(8270, 105, 3).egg(8545, 320).coins(8700, 105, 3)
-       .spikes(9200, 7, 'floor', 40).cleaver(9340, 240, 0.75, 1.8).coins(9120, 360, 9)
+       .farmer(8300, 190, 280, 1.2).farmer(8950, 190, 280, 1.2, 1.8).coins(8220, 105, 3).arc(8480, 330, 3, -30).egg(8625, 340).arc(8690, 330, 3, -30).coins(8900, 105, 3)
+       .spikes(9300, 7, 'floor', 40).cleaver(9440, 240, 0.75, 1.8).coins(9220, 360, 9)
        .tower(9700, 80, 300, 'ceil').tower(10000, 80, 300).tower(10300, 80, 300, 'ceil').tower(10600, 80, 300)
        .coins(9690, 390, 3).coins(9990, 130, 3).coins(10290, 390, 3).coins(10590, 130, 3)
        .spikes(11000, 6, 'floor', 90).coins(10980, 290, 6)
@@ -280,9 +280,301 @@ for (const h of HATS) {
   HAT_BY_ID[h.id] = h;
 }
 
+// ---------- Wings (drawn in code; one wing, shoulder at origin, reaching up-left ~36px) ----------
+const WING_PATHS = {
+  feather: new Path2D('M0 0 Q-10 -28 -32 -30 Q-22 -21 -27 -15 Q-16 -11 -19 -4 Q-8 -4 0 0Z'),
+  membrane: new Path2D('M0 0 L-10 -24 L-36 -30 Q-28 -22 -27 -12 Q-20 -14 -16 -6 Q-9 -8 -4 2Z'),
+  bflyTop: new Path2D('M0 0 C-6 -30 -34 -38 -37 -24 C-38 -14 -20 -8 0 0Z'),
+  bflyLow: new Path2D('M0 0 C-14 -2 -23 4 -19 10 C-13 14 -4 7 0 0Z'),
+  paper: new Path2D('M0 0 L-37 -31 L-17 -7Z'),
+  paperFold: new Path2D('M0 0 L-17 -7 L-25 -1Z'),
+  crystal: new Path2D('M0 0 L-6 -26 L-16 -20 L-30 -35 L-27 -17 L-37 -15 L-20 -6 L-22 1Z'),
+};
+WING_PATHS.insect = new Path2D(); WING_PATHS.insect.ellipse(-16, -17, 21, 7, 0.8, 0, Math.PI * 2);
+WING_PATHS.insect2 = new Path2D(); WING_PATHS.insect2.ellipse(-13, -6, 14, 5, 0.32, 0, Math.PI * 2);
+const RAINBOW = ['#ff5a5a', '#ffa94d', '#ffe14d', '#6ee26e', '#5ab4ff', '#b07cff'];
+const WINGS = [
+  { id: 'w:classic', name: 'Cherub Classics', price: 0, style: 'feather', c: ['#ffffff', '#f4f4ff'], edge: '#b9b9d6', desc: 'The original. Angelic. Ham-gelic.' },
+  { id: 'w:pigeon', name: 'Pig-eon Wings', price: 60, style: 'feather', c: ['#b4bdcb', '#7d8899'], edge: '#5b6475', bar: '#454d5c', desc: 'Coo coo ca-choo. Strictly park-bench chic.' },
+  { id: 'w:paper', name: 'Origami Oinker', price: 60, style: 'paper', desc: 'Hand-folded. Do not fly in the rain. (You will.)' },
+  { id: 'w:bee', name: 'Bee-con Buzzers', price: 100, style: 'insect', flap: 2.6, c: ['rgba(225,245,255,0.75)', 'rgba(255,255,255,0.35)'], edge: 'rgba(100,130,160,0.9)', desc: 'Bzzz-oink. They flap really, really fast.' },
+  { id: 'w:butterfly', name: 'Butter-fly Pork', price: 100, style: 'butterfly', c: ['#ff9ad5', '#9a6cff'], edge: '#4a2160', desc: 'Pan-fried in pure elegance.' },
+  { id: 'w:bat', name: 'Hog-ula Bat Wings', price: 160, style: 'membrane', c: ['#6a3e82', '#3a1f4c'], edge: '#24122f', bone: '#24122f', desc: 'I vant to suck... on some mud.' },
+  { id: 'w:fairy', name: 'Fairy Hogmother', price: 160, style: 'insect', flap: 1.5, c: ['rgba(255,180,240,0.75)', 'rgba(160,225,255,0.75)'], edge: '#ffffff', sparkle: true, desc: 'Bibbidi-bobbidi-BOAR.' },
+  { id: 'w:bone', name: 'Bone-in Wings', price: 160, style: 'bone', desc: 'Like a bone-in ham, but airborne. Spooky.' },
+  { id: 'w:ice', name: 'Ice-Cold Cuts', price: 250, style: 'crystal', desc: 'Keeps your ham fresh at any altitude.' },
+  { id: 'w:robo', name: 'Robo-Rind Jets', price: 250, style: 'robo', desc: 'Beep boop. Pork-tron 3000 online.' },
+  { id: 'w:dragon', name: 'Draggin\' Bacon', price: 250, style: 'membrane', c: ['#ff6a3d', '#b52a17'], edge: '#1f5e2a', bone: '#2e8b3e', claw: true, desc: 'Breathes fire. Smells delicious about it.' },
+  { id: 'w:rainbow', name: 'Rainbow Rasher', price: 250, style: 'feather', rainbow: true, edge: '#ffffff', desc: 'Every color of the ham-bow.' },
+  { id: 'w:phoenix', name: 'Phoenix Pork Belly', price: 400, style: 'feather', c: ['#ffe066', '#ff4a1c'], edge: '#b8260f', glow: '#ff8a2a', desc: 'Rose from the ashes of a backyard BBQ.' },
+  { id: 'w:gold', name: '24-Carat Crackling', price: 500, eggs: 12, style: 'feather', c: ['#fff3a0', '#d99a00'], edge: '#8a5a00', glow: '#ffd84a', shine: true, desc: 'Solid gold. Golden eggs not included (but required).' },
+];
+const WING_BY_ID = {};
+for (const w of WINGS) WING_BY_ID[w.id] = w;
+
+function wingGrad(a, b) { const g = ctx.createLinearGradient(0, 0, -34, -30); g.addColorStop(0, a); g.addColorStop(1, b); return g; }
+function bones(segs, col, lw) {
+  ctx.strokeStyle = col; ctx.lineWidth = lw; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  for (const s of segs) { ctx.beginPath(); ctx.moveTo(s[0], s[1]); for (let i = 2; i < s.length; i += 2) ctx.lineTo(s[i], s[i + 1]); ctx.stroke(); }
+}
+function drawWing(w, back) {
+  const P = WING_PATHS;
+  ctx.save();
+  if (back) ctx.globalAlpha *= 0.92;
+  ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+  if (w.glow) { ctx.shadowColor = w.glow; ctx.shadowBlur = 10; }
+  let shade = null;
+  switch (w.style) {
+    case 'feather': {
+      if (w.rainbow) { const g = ctx.createLinearGradient(0, 0, -34, -30); RAINBOW.forEach((c, i) => g.addColorStop(i / (RAINBOW.length - 1), c)); ctx.fillStyle = g; }
+      else ctx.fillStyle = wingGrad(w.c[0], w.c[1]);
+      ctx.fill(P.feather); ctx.shadowBlur = 0;
+      ctx.strokeStyle = w.edge; ctx.lineWidth = 1.5; ctx.stroke(P.feather);
+      if (w.bar) { ctx.strokeStyle = w.bar; ctx.lineWidth = 2; line(-13, -15, -23, -21); line(-9, -7, -17, -11); }
+      if (w.shine) { ctx.strokeStyle = `rgba(255,255,255,${0.55 + 0.35 * Math.sin(clock * 5)})`; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(-5, -6); ctx.quadraticCurveTo(-11, -20, -24, -25); ctx.stroke(); }
+      if (w.glow && !w.shine) { ctx.strokeStyle = 'rgba(255,240,150,0.8)'; ctx.lineWidth = 1.5; line(-6, -5, -20, -22); }
+      shade = P.feather; break;
+    }
+    case 'membrane': {
+      ctx.fillStyle = wingGrad(w.c[0], w.c[1]); ctx.fill(P.membrane);
+      ctx.strokeStyle = w.edge; ctx.lineWidth = 1.5; ctx.stroke(P.membrane);
+      bones([[0, 0, -10, -24, -36, -30], [-10, -24, -27, -12], [-10, -24, -16, -6]], w.bone, 2.4);
+      if (w.claw) { ctx.fillStyle = '#f4efe0'; ctx.beginPath(); ctx.moveTo(-9, -25); ctx.lineTo(-6, -31); ctx.lineTo(-12, -26); ctx.closePath(); ctx.fill(); }
+      shade = P.membrane; break;
+    }
+    case 'butterfly': {
+      ctx.fillStyle = wingGrad(w.c[0], w.c[1]); ctx.fill(P.bflyTop);
+      ctx.fillStyle = w.c[1]; ctx.fill(P.bflyLow);
+      ctx.strokeStyle = w.edge; ctx.lineWidth = 2; ctx.stroke(P.bflyTop); ctx.stroke(P.bflyLow);
+      ctx.fillStyle = '#fff'; for (const [dx, dy, r] of [[-31, -25, 2.2], [-25, -30, 1.6], [-33, -18, 1.4], [-14, 6, 1.6]]) { circle(dx, dy, r); ctx.fill(); }
+      ctx.fillStyle = 'rgba(255,255,255,0.35)'; ellipse(-18, -18, 7, 4); ctx.fill();
+      shade = P.bflyTop; break;
+    }
+    case 'insect': {
+      ctx.fillStyle = wingGrad(w.c[0], w.c[1]);
+      ctx.fill(P.insect2); ctx.fill(P.insect);
+      ctx.strokeStyle = w.edge; ctx.lineWidth = 1.2; ctx.stroke(P.insect2); ctx.stroke(P.insect);
+      ctx.strokeStyle = w.sparkle ? 'rgba(255,255,255,0.8)' : 'rgba(100,130,160,0.5)'; ctx.lineWidth = 0.8;
+      line(-2, -2, -29, -30); line(-12, -12, -22, -14); line(-3, -2, -24, -9);
+      if (w.sparkle) {
+        ctx.fillStyle = '#fff';
+        for (let i = 0; i < 4; i++) { const tw = 0.5 + 0.5 * Math.sin(clock * 9 + i * 1.9); circle(-8 - i * 6, -9 - i * 5 + (i % 2) * 6, 0.6 + tw * 1.2); ctx.fill(); }
+      }
+      break;
+    }
+    case 'paper': {
+      ctx.fillStyle = '#fdfdfd'; ctx.fill(P.paper);
+      ctx.fillStyle = '#dbe3ee'; ctx.fill(P.paperFold);
+      ctx.strokeStyle = '#8c9ab0'; ctx.lineWidth = 1.2; ctx.stroke(P.paper); ctx.stroke(P.paperFold);
+      ctx.strokeStyle = 'rgba(90,150,230,0.45)'; ctx.lineWidth = 0.8; line(-8, -7, -27, -23); line(-12, -6, -31, -24);
+      shade = P.paper; break;
+    }
+    case 'crystal': {
+      ctx.shadowColor = '#bfefff'; ctx.shadowBlur = 8;
+      ctx.fillStyle = wingGrad('#f0fdff', '#6cc0f0'); ctx.fill(P.crystal); ctx.shadowBlur = 0;
+      ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1.4; ctx.stroke(P.crystal);
+      ctx.strokeStyle = 'rgba(80,160,220,0.6)'; ctx.lineWidth = 1; line(0, 0, -16, -20); line(0, 0, -27, -17); line(-16, -20, -27, -17); line(-6, -26, -16, -20);
+      shade = P.crystal; break;
+    }
+    case 'bone': {
+      const segs = [[0, 0, -10, -24, -34, -30], [-10, -24, -26, -13], [-10, -24, -17, -4]];
+      bones(segs, '#7d725e', 6); bones(segs, '#f6f1e2', 3.6);
+      ctx.fillStyle = '#f6f1e2'; ctx.strokeStyle = '#7d725e'; ctx.lineWidth = 1;
+      for (const [dx, dy] of [[-34, -30], [-26, -13], [-17, -4]]) { circle(dx, dy, 2.6); ctx.fill(); ctx.stroke(); }
+      break;
+    }
+    case 'robo': {
+      for (let i = 2; i >= 0; i--) {
+        const L = 36 - i * 7;
+        ctx.save(); ctx.rotate(0.38 + i * 0.34);
+        const g = ctx.createLinearGradient(0, -4, 0, 4); g.addColorStop(0, '#e8eef5'); g.addColorStop(1, '#8796a8');
+        ctx.fillStyle = g; rrect(-L, -4, L, 8, 3); ctx.fill();
+        ctx.strokeStyle = '#3d4a5a'; ctx.lineWidth = 1.2; ctx.stroke();
+        ctx.fillStyle = '#3d4a5a'; circle(-L + 5, 0, 1.2); ctx.fill(); circle(-6, 0, 1.2); ctx.fill();
+        ctx.fillStyle = i === 0 ? `rgba(80,230,255,${0.6 + 0.4 * Math.sin(clock * 10)})` : '#5a6a7a'; circle(-L + 1.5, 0, 1.6); ctx.fill();
+        ctx.restore();
+      }
+      ctx.fillStyle = '#5a6a7a'; circle(0, 0, 4); ctx.fill();
+      break;
+    }
+  }
+  if (back && shade) { ctx.shadowBlur = 0; ctx.fillStyle = 'rgba(40,20,70,0.14)'; ctx.fill(shade); }
+  ctx.restore();
+}
+
+// ---------- Effects (trails + auras) ----------
+// make(x, y, src) returns one particle; k = what to draw. Everything is purely cosmetic.
+const FX = [
+  { id: 'fx:none', name: 'Plain Pork', price: 0, icon: '🐖', desc: 'No frills. Just a pig, flying. As nature intended.' },
+  { id: 'fx:smoke', name: 'Smoked Ham', price: 50, icon: '💨', rate: 24, desc: 'Hickory-smoked, mid-flight.',
+    make: (x, y) => ({ k: 'smoke', x, y: y + rand(-4, 10), vx: rand(-30, 10), vy: rand(-40, -10), life: 0.9, size: rand(5, 8), col: pick(['#d4d4dc', '#b9b9c4', '#e8e8ee']) }) },
+  { id: 'fx:bubbles', name: 'Hog Wash Bubbles', price: 60, icon: '🧼', rate: 16, desc: 'Squeaky clean. For about four seconds.',
+    make: (x, y) => ({ k: 'bubble', x, y: y + rand(-14, 14), vx: rand(-40, 0), vy: rand(-50, -15), life: rand(1, 1.6), size: rand(4, 9), wob: rand(0, 6) }) },
+  { id: 'fx:hearts', name: 'Hog & Kisses', price: 80, icon: '💕', rate: 14, desc: 'Love is in the air. So is the pig.',
+    make: (x, y) => ({ k: 'heart', x, y: y + rand(-12, 12), vx: rand(-30, 10), vy: rand(-60, -25), life: 1.1, size: rand(7, 11), col: pick(['#ff5c8a', '#ff8fb0', '#ff3d6e', '#ffb3c8']), rot: rand(-0.4, 0.4) }) },
+  { id: 'fx:sparkles', name: 'Pink Pork Sparkles', price: 100, icon: '✨', rate: 26, desc: 'Sparkle like the fabulous ham you are.',
+    make: (x, y) => ({ k: 'star4', x: x + rand(-10, 10), y: y + rand(-18, 18), vx: rand(-20, 20), vy: rand(-20, 20), life: rand(0.5, 0.9), size: rand(4, 8), col: pick(['#ff7ab8', '#ffb3d9', '#ffffff', '#ff4fa3']), rot: rand(0, 1), vr: rand(-3, 3) }) },
+  { id: 'fx:glitter', name: 'Glam-bon Glitter', price: 120, icon: '🎇', rate: 70, desc: 'You will be finding this in the barn for years.',
+    make: (x, y) => ({ k: 'glint', x: x + rand(-14, 8), y: y + rand(-18, 18), vx: rand(-40, 20), vy: rand(-30, 10), g: 90, life: rand(0.5, 1), size: rand(1.5, 3), hue: rand(0, 360), rot: rand(0, 3), vr: rand(-8, 8) }) },
+  { id: 'fx:notes', name: 'Hog Wild Tunes', price: 120, icon: '🎵', rate: 9, desc: 'Ham-mering out the hits. Oink-oink-ba-doink.',
+    make: (x, y) => ({ k: 'note', x, y: y + rand(-14, 6), vx: rand(-40, -10), vy: rand(-60, -30), life: 1.3, size: rand(14, 20), txt: pick(['♪', '♫', '♬']), col: pick(['#ff6f9c', '#7a5cff', '#2fb4ff', '#ffb400']), wob: rand(0, 6) }) },
+  { id: 'fx:confetti', name: 'Pig-nic Confetti', price: 150, icon: '🎊', rate: 30, desc: 'Every flight is a parade. You are the float.',
+    make: (x, y) => ({ k: 'confetti', x, y: y + rand(-10, 10), vx: rand(-80, 40), vy: rand(-170, -40), g: 380, life: rand(0.9, 1.4), size: rand(4, 7), col: pick(RAINBOW), rot: rand(0, 6), vr: rand(-10, 10) }) },
+  { id: 'fx:snow', name: 'Snow Hog', price: 150, icon: '❄️', rate: 20, desc: 'Let it snow, let it snow, let it oink.',
+    make: (x, y) => ({ k: 'flake', x: x + rand(-8, 8), y: y + rand(-16, 16), vx: rand(-25, 15), vy: rand(20, 60), life: rand(1, 1.5), size: rand(3.5, 6), rot: rand(0, 1), vr: rand(-2, 2) }) },
+  { id: 'fx:bacon', name: 'Bacon Bits', price: 160, icon: '🥓', rate: 9, desc: 'A little too on the nose? Never.',
+    make: (x, y) => ({ k: 'bacon', x, y, vx: rand(-90, 20), vy: rand(-220, -80), g: 700, life: 1.1, size: 1, rot: rand(0, 6), vr: rand(-9, 9) }) },
+  { id: 'fx:stars', name: 'Ham-azing Stars', price: 160, icon: '⭐', rate: 18, desc: 'A star is born. A pork star.',
+    make: (x, y) => ({ k: 'star5', x, y: y + rand(-14, 14), vx: rand(-60, 10), vy: rand(-50, 50), life: rand(0.7, 1.1), size: rand(5, 9), col: pick(['#ffe14d', '#fff3a0', '#ffc93c']), rot: rand(0, 6), vr: rand(-4, 4) }) },
+  { id: 'fx:fire', name: 'Hot Hog Flames', price: 250, icon: '🔥', rate: 55, aura: 'fire', desc: 'Sizzling. Literally. Please don\'t lick the screen.',
+    make: (x, y) => ({ k: 'flame', x: x + rand(-6, 14), y: y + rand(-14, 8), vx: rand(-90, -30), vy: rand(-110, -40), life: rand(0.35, 0.6), size: rand(4, 8) }) },
+  { id: 'fx:zap', name: 'Thunder Thighs', price: 250, icon: '⚡', rate: 24, aura: 'zap', desc: 'One million volts of pure pork power.',
+    make: (x, y) => ({ k: 'spark', x: x + rand(-4, 16), y: y + rand(-16, 14), vx: rand(-160, 60), vy: rand(-160, 160), life: rand(0.15, 0.3), size: 2 }) },
+  { id: 'fx:money', name: 'Piggy Bank Rain', price: 250, icon: '💰', rate: 12, desc: 'Make it rain. (The coins aren\'t real. Sorry.)',
+    make: (x, y) => ({ k: 'coin', x, y, vx: rand(-70, 30), vy: rand(-180, -60), g: 650, life: 1.2, size: rand(4, 5.5) }) },
+  { id: 'fx:rainbow', name: 'Rainbow Rasher Trail', price: 300, icon: '🌈', rate: 120, desc: 'Somewhere over the ham-bow.',
+    make: (x, y) => ({ k: 'rainbow', x: x - 6, y: y + 2, life: 0.55, size: 1 }) },
+  { id: 'fx:ghost', name: 'Hog-ographic Echo', price: 300, icon: '👻', rate: 14, desc: 'Moving so fast you leave yourself behind.',
+    make: (x, y, s) => ({ k: 'ghost', x: x + 14, y, life: 0.35, size: 1, ang: s.ang, flap: s.flap, look: { hat: s.look.hat, wing: s.look.wing } }) },
+  { id: 'fx:halo', name: 'Holy Ham Halo', price: 500, eggs: 15, icon: '😇', rate: 16, aura: 'halo', desc: 'Pure as the driven snout. Blessed be the bacon.',
+    make: (x, y) => ({ k: 'star4', x: x + rand(-14, 14), y: y + rand(-20, 16), vx: rand(-30, 10), vy: rand(-30, 10), life: rand(0.5, 0.9), size: rand(3, 6), col: pick(['#fff3a0', '#ffe14d', '#ffffff']), rot: 0, vr: rand(-2, 2) }) },
+];
+const FX_BY_ID = {};
+for (const f of FX) FX_BY_ID[f.id] = f;
+
+const trail = { list: [], acc: 0 }, menuTrail = { list: [], acc: 0 }, pvTrail = { list: [], acc: 0 };
+function emitFx(sys, id, x, y, dt, src, drift = 0) {
+  const e = FX_BY_ID[id];
+  if (!e || !e.make) { sys.acc = 0; return; }
+  sys.acc += e.rate * dt;
+  while (sys.acc >= 1) {
+    sys.acc--;
+    const p = e.make(x, y, src);
+    p.vx = (p.vx || 0) + drift; p.vy = p.vy || 0; p.g = p.g || 0; p.max = p.life; p.size0 = p.size;
+    if (sys.list.length < 500) sys.list.push(p);
+  }
+}
+function stepFx(sys, dt) {
+  for (const p of sys.list) { p.life -= dt; p.vy += p.g * dt; p.x += p.vx * dt; p.y += p.vy * dt; if (p.vr) p.rot += p.vr * dt; }
+  if (sys.list.length && sys.list[0].life <= 0) sys.list = sys.list.filter(p => p.life > 0);
+}
+function starPath(r, inner, n) {
+  ctx.beginPath();
+  for (let i = 0; i < n * 2; i++) { const rr = i % 2 ? inner : r, a = -Math.PI / 2 + i * Math.PI / n; i ? ctx.lineTo(Math.cos(a) * rr, Math.sin(a) * rr) : ctx.moveTo(Math.cos(a) * rr, Math.sin(a) * rr); }
+  ctx.closePath();
+}
+function heartPath(s) {
+  ctx.beginPath(); ctx.moveTo(0, s * 0.4);
+  ctx.bezierCurveTo(-s * 1.1, -s * 0.3, -s * 0.5, -s * 1.1, 0, -s * 0.45);
+  ctx.bezierCurveTo(s * 0.5, -s * 1.1, s * 1.1, -s * 0.3, 0, s * 0.4);
+  ctx.closePath();
+}
+function drawTrail(list, cam) {
+  const base = ctx.globalAlpha;
+  for (const p of list) {
+    const a = clamp(p.life / p.max, 0, 1), s = p.size;
+    ctx.save(); ctx.globalAlpha = base * a; ctx.translate(p.x - cam, p.y); if (p.rot) ctx.rotate(p.rot);
+    switch (p.k) {
+      case 'smoke': ctx.globalAlpha = base * a * 0.6; ctx.fillStyle = p.col; circle(0, 0, s + 12 * (1 - a)); ctx.fill(); break;
+      case 'bubble':
+        ctx.translate(Math.sin(clock * 4 + p.wob) * 3, 0);
+        ctx.fillStyle = 'rgba(200,240,255,0.25)'; ctx.strokeStyle = 'rgba(120,200,255,0.9)'; ctx.lineWidth = 1.5;
+        circle(0, 0, s); ctx.fill(); ctx.stroke();
+        ctx.strokeStyle = 'rgba(255,255,255,0.9)'; ctx.beginPath(); ctx.arc(0, 0, s * 0.65, -2.6, -1.6); ctx.stroke(); break;
+      case 'heart': ctx.fillStyle = p.col; heartPath(s); ctx.fill(); break;
+      case 'star4': {
+        const r = s * (0.6 + 0.4 * Math.sin(clock * 12 + s * 7));
+        ctx.fillStyle = p.col; ctx.beginPath(); ctx.moveTo(0, -r);
+        ctx.quadraticCurveTo(0, 0, r, 0); ctx.quadraticCurveTo(0, 0, 0, r); ctx.quadraticCurveTo(0, 0, -r, 0); ctx.quadraticCurveTo(0, 0, 0, -r); ctx.fill(); break;
+      }
+      case 'glint': ctx.globalAlpha = base * a * (0.5 + 0.5 * Math.sin(clock * 20 + p.hue)); ctx.fillStyle = `hsl(${(p.hue + clock * 240) % 360},100%,72%)`; ctx.fillRect(-s, -s, s * 2, s * 2); break;
+      case 'note':
+        ctx.translate(Math.sin(clock * 5 + p.wob) * 4, 0);
+        ctx.font = `bold ${s}px sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(255,255,255,0.85)'; ctx.strokeText(p.txt, 0, 0); ctx.fillStyle = p.col; ctx.fillText(p.txt, 0, 0); break;
+      case 'confetti': ctx.scale(1, Math.cos(clock * 9 + s)); ctx.fillStyle = p.col; ctx.fillRect(-s / 2, -s / 4, s, s / 2); break;
+      case 'flake':
+        ctx.lineCap = 'round';
+        for (const [col, lw] of [['rgba(120,180,240,0.8)', 3], ['#fff', 1.4]]) {
+          ctx.strokeStyle = col; ctx.lineWidth = lw;
+          for (let i = 0; i < 3; i++) { const an = i * Math.PI / 3, cx = Math.cos(an) * s, cy = Math.sin(an) * s; line(-cx, -cy, cx, cy); }
+        }
+        break;
+      case 'bacon': {
+        const pts = [[-7, 0], [-3.5, -2], [0, 0], [3.5, 2], [7, 0]];
+        const path = () => { ctx.beginPath(); pts.forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)); };
+        ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+        path(); ctx.strokeStyle = '#7a1f14'; ctx.lineWidth = 6.5; ctx.stroke();
+        path(); ctx.strokeStyle = '#d0503c'; ctx.lineWidth = 4.5; ctx.stroke();
+        path(); ctx.strokeStyle = '#f7d9c4'; ctx.lineWidth = 1.3; ctx.stroke(); break;
+      }
+      case 'star5': starPath(s, s * 0.45, 5); ctx.fillStyle = p.col; ctx.fill(); ctx.strokeStyle = '#c88a00'; ctx.lineWidth = 1; ctx.stroke(); break;
+      case 'flame':
+        ctx.globalCompositeOperation = 'lighter';
+        ctx.fillStyle = a > 0.65 ? '#fff0a0' : a > 0.35 ? '#ffa030' : '#ff4a1c';
+        circle(0, 0, s * (0.4 + 0.6 * a)); ctx.fill(); break;
+      case 'spark':
+        ctx.globalCompositeOperation = 'lighter'; ctx.strokeStyle = '#cfefff'; ctx.lineWidth = 2; ctx.lineCap = 'round';
+        line(0, 0, -p.vx * 0.04, -p.vy * 0.04); break;
+      case 'coin':
+        ctx.scale(Math.cos(clock * 10 + s * 3), 1);
+        ctx.fillStyle = '#b77d00'; circle(0, 0, s); ctx.fill(); ctx.fillStyle = '#ffd23f'; circle(0, 0, s - 1.4); ctx.fill(); break;
+      case 'rainbow':
+        ctx.globalAlpha = base * Math.min(1, a * 1.6) * 0.9;
+        RAINBOW.forEach((c, i) => { ctx.fillStyle = c; ctx.fillRect(-3, -9 + i * 3, 6, 3); }); break;
+      case 'ghost': ctx.globalAlpha = base * a * 0.35; drawPig(0, 0, p.ang, p.flap, 1, true, 1, p.look); break;
+    }
+    ctx.restore();
+  }
+}
+// Auras are drawn in pig space (body centre at 0,0, head at 18,-6), behind (front=false) or over the pig
+function drawAura(kind, front, hat) {
+  ctx.save();
+  if (kind === 'fire') {
+    if (!front) {
+      const g = ctx.createRadialGradient(2, -4, 6, 2, -4, 46); g.addColorStop(0, 'rgba(255,150,40,0.5)'); g.addColorStop(1, 'rgba(255,90,20,0)');
+      ctx.fillStyle = g; circle(2, -4, 46); ctx.fill();
+      ctx.globalCompositeOperation = 'lighter';
+      for (let i = 0; i < 8; i++) {
+        const bx = -26 + i * 7.5, by = -Math.sqrt(Math.max(0, 1 - (bx / 30) ** 2)) * 19 + 2, h = 15 + 7 * Math.sin(clock * 19 + i * 2.1);
+        for (const [col, k] of [['rgba(255,80,20,0.75)', 1], ['rgba(255,200,60,0.8)', 0.6]]) {
+          ctx.fillStyle = col; ctx.beginPath(); ctx.moveTo(bx - 5 * k, by);
+          ctx.quadraticCurveTo(bx - 6 * k, by - h * 0.6 * k, bx - 4 - h * 0.55 * k, by - h * k);
+          ctx.quadraticCurveTo(bx + 2 * k, by - h * 0.45 * k, bx + 5 * k, by); ctx.closePath(); ctx.fill();
+        }
+      }
+    }
+  } else if (kind === 'zap') {
+    if (!front) {
+      const g = ctx.createRadialGradient(4, -4, 8, 4, -4, 44); g.addColorStop(0, 'rgba(120,200,255,0.4)'); g.addColorStop(1, 'rgba(120,200,255,0)');
+      ctx.fillStyle = g; circle(4, -4, 44); ctx.fill();
+    } else {
+      ctx.strokeStyle = '#eaf8ff'; ctx.lineWidth = 2; ctx.lineJoin = 'round'; ctx.shadowColor = '#5cc8ff'; ctx.shadowBlur = 8;
+      const n = Math.floor(clock * 14) % 3 === 0 ? 2 : 1;
+      for (let j = 0; j < n; j++) {
+        const a0 = Math.random() * Math.PI * 2, r0 = 22, r1 = 40;
+        ctx.beginPath(); ctx.moveTo(4 + Math.cos(a0) * r0, -4 + Math.sin(a0) * r0 * 0.8);
+        for (let k = 1; k <= 4; k++) { const rr = r0 + (r1 - r0) * k / 4, aa = a0 + rand(-0.35, 0.35); ctx.lineTo(4 + Math.cos(aa) * rr, -4 + Math.sin(aa) * rr * 0.8); }
+        ctx.stroke();
+      }
+    }
+  } else if (kind === 'halo') {
+    if (!front) {
+      const g = ctx.createRadialGradient(6, -6, 8, 6, -6, 52); g.addColorStop(0, 'rgba(255,240,150,0.55)'); g.addColorStop(1, 'rgba(255,230,120,0)');
+      ctx.fillStyle = g; circle(6, -6, 52); ctx.fill();
+    } else {
+      const hy = (hat ? -62 : -38) + Math.sin(clock * 3) * 2;
+      ctx.shadowColor = '#fff3a0'; ctx.shadowBlur = 10; ctx.strokeStyle = '#ffd84a'; ctx.lineWidth = 3.5;
+      ctx.beginPath(); ctx.ellipse(17, hy, 13, 4, -0.1, 0, Math.PI * 2); ctx.stroke();
+      ctx.shadowBlur = 0; ctx.strokeStyle = 'rgba(255,255,255,0.8)'; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.ellipse(17, hy, 13, 4, -0.1, Math.PI * 1.1, Math.PI * 1.6); ctx.stroke();
+    }
+  }
+  ctx.restore();
+}
+
 // ---------- Save data ----------
 const SAVE_KEY = 'pigsfly-save';
-let save = { bests: {}, eggs: {}, coins: 0, owned: [], hat: null, volume: 0.7 };
+let save = { bests: {}, eggs: {}, coins: 0, owned: [], hat: null, wing: 'w:classic', fx: 'fx:none', volume: 0.7 };
 try {
   const s = JSON.parse(localStorage.getItem(SAVE_KEY) || 'null');
   if (s && typeof s === 'object') save = Object.assign(save, s);
@@ -293,6 +585,9 @@ function persist() { if (noPersist) return; try { localStorage.setItem(SAVE_KEY,
 const levelEggs = i => save.eggs[i] || 0;
 const totalEggs = () => LEVELS.reduce((n, _, i) => n + bits(levelEggs(i)), 0);
 const unlocked = i => i === 0 || !!save.bests[i - 1];
+if (!WING_BY_ID[save.wing]) save.wing = 'w:classic';
+if (!FX_BY_ID[save.fx]) save.fx = 'fx:none';
+const myLook = () => ({ hat: save.hat, wing: save.wing, fx: save.fx });
 
 // ---------- Audio (tiny synth, no files) ----------
 let actx = null, testMuted = false;
@@ -416,7 +711,7 @@ let levelIdx = 0, level = LEVELS[0], objs = [], items = [];
 let pig, camX = 0, levelT = 0, attempts = 0;
 let particles = [], bacon = null, lostHat = null, deadT = 0, winT = 0, quip = '', shake = 0;
 let menuCam = 0, clock = 0, splashed = false, newBest = false, winTime = 0;
-let runCoins = 0, runEggs = 0, winInfo = null, shopOpen = false, shopSel = null, shopFrom = 'menu';
+let runCoins = 0, runEggs = 0, winInfo = null, shopOpen = false, shopSel = {}, shopFrom = 'menu';
 const keys = { up: false, boost: false };
 const input = { kbUp: false, kbBoost: false, ptrs: new Set(), boostPtr: null };
 function syncKeys() {
@@ -460,6 +755,7 @@ function resetAttempt() {
   pig = newPig();
   camX = pig.x - PIG_SX;
   levelT = 0; particles = []; bacon = null; lostHat = null; shake = 0; splashed = false;
+  trail.list = []; trail.acc = 0;
   runCoins = 0; runEggs = 0;
   state = 'playing';
 }
@@ -584,7 +880,13 @@ function update(dt) {
   clock += dt;
   if (shake > 0) shake = Math.max(0, shake - dt * 40);
 
-  if (state === 'menu') menuCam += 140 * dt;
+  if (state === 'menu') {
+    menuCam += 140 * dt;
+    emitFx(menuTrail, save.fx, PIG_SX + 26, 250 + Math.sin(clock * 2) * 50, dt, { ang: Math.cos(clock * 2) * -0.25, flap: clock * 22, look: myLook() }, -260);
+  }
+  stepFx(menuTrail, dt);
+  stepFx(trail, dt);
+  if ((state === 'playing' || (state === 'win' && !splashed)) && pig) emitFx(trail, save.fx, pig.x - 14, pig.y, dt, { ang: pig.ang, flap: pig.flap, look: myLook() });
 
   if (state === 'playing') {
     levelT += dt;
@@ -658,15 +960,6 @@ function text(str, x, y, size, fill = '#fff', align = 'center', stroke = '#5a234
   ctx.strokeText(str, x, y); ctx.fillStyle = fill; ctx.fillText(str, x, y);
 }
 
-function wing(col) {
-  ctx.fillStyle = col; ctx.strokeStyle = '#b9b9d6'; ctx.lineWidth = 1.5;
-  ctx.beginPath(); ctx.moveTo(0, 0);
-  ctx.quadraticCurveTo(-10, -28, -32, -30);
-  ctx.quadraticCurveTo(-22, -21, -27, -15);
-  ctx.quadraticCurveTo(-16, -11, -19, -4);
-  ctx.quadraticCurveTo(-8, -4, 0, 0);
-  ctx.fill(); ctx.stroke();
-}
 // Draws a hat image with its brim's bottom-centre at the current origin
 function hatImage(h) {
   if (!h.img.complete || !h.img.naturalWidth) return;
@@ -679,10 +972,13 @@ function drawHatOnHead(id) {
   hatImage(h);
   ctx.restore();
 }
-function drawPig(x, y, ang, flap, s = 1, wings = true, flip = 1, hat = null) {
+// look = { hat, wing, fx } (any may be missing)
+function drawPig(x, y, ang, flap, s = 1, wings = true, flip = 1, look = null) {
+  const hat = look && look.hat, wg = (look && WING_BY_ID[look.wing]) || WINGS[0], fx = look && FX_BY_ID[look.fx];
   ctx.save(); ctx.translate(x, y); ctx.rotate(ang); ctx.scale(s * flip, s);
-  const wa = Math.sin(flap) * 0.7;
-  if (wings) { ctx.save(); ctx.translate(-2, -14); ctx.rotate(-0.5 + wa); wing('#e4e4f4'); ctx.restore(); }
+  const wa = Math.sin(flap * (wg.flap || 1)) * 0.7;
+  if (fx && fx.aura) drawAura(fx.aura, false, hat);
+  if (wings) { ctx.save(); ctx.translate(-2, -14); ctx.rotate(-0.5 + wa); drawWing(wg, true); ctx.restore(); }
   // tail
   ctx.strokeStyle = '#e07a9a'; ctx.lineWidth = 3; ctx.lineCap = 'round';
   ctx.beginPath(); ctx.moveTo(-24, -4); ctx.bezierCurveTo(-34, -14, -40, 2, -31, 2); ctx.bezierCurveTo(-26, 2, -28, -6, -34, -4); ctx.stroke();
@@ -704,7 +1000,8 @@ function drawPig(x, y, ang, flap, s = 1, wings = true, flip = 1, hat = null) {
   ctx.fillStyle = '#222'; circle(23.2, -11, 2.3); ctx.fill();
   ctx.fillStyle = 'rgba(255,110,150,0.45)'; circle(20, -1, 3.5); ctx.fill();
   if (hat) drawHatOnHead(hat);
-  if (wings) { ctx.save(); ctx.translate(-5, -11); ctx.rotate(-0.2 - wa); wing('#ffffff'); ctx.restore(); }
+  if (wings) { ctx.save(); ctx.translate(-5, -11); ctx.rotate(-0.2 - wa); drawWing(wg, false); ctx.restore(); }
+  if (fx && fx.aura) drawAura(fx.aura, true, hat);
   ctx.restore();
 }
 function drawBacon(x, y, rot) {
@@ -979,7 +1276,7 @@ function drawMud(cam) {
     const hop = cheer ? Math.abs(Math.sin(clock * 6 + i)) * 22 : 0;
     drawPig(ex + px, GROUND - 34 + Math.sin(clock * 2.5 + i) * 3 - hop, f * 0.08, 0, 0.8, false, f);
   });
-  if (state === 'win' && splashed) drawPig(pig.x - cam, GROUND - 34 + Math.sin(clock * 3) * 3 - Math.abs(Math.sin(clock * 6)) * 14, 0, clock * 20, 0.9, true, 1, save.hat);
+  if (state === 'win' && splashed) drawPig(pig.x - cam, GROUND - 34 + Math.sin(clock * 3) * 3 - Math.abs(Math.sin(clock * 6)) * 14, 0, clock * 20, 0.9, true, 1, myLook());
   // mud front
   const mg = ctx.createLinearGradient(0, GROUND - 40, 0, GROUND + 40);
   mg.addColorStop(0, '#7a5230'); mg.addColorStop(1, '#4a2f17');
@@ -1046,7 +1343,8 @@ function render() {
   drawGround(cam, th);
 
   if (state === 'menu') {
-    drawPig(PIG_SX + 40, 250 + Math.sin(clock * 2) * 50, Math.cos(clock * 2) * -0.25, clock * 22, 1, true, 1, save.hat);
+    drawTrail(menuTrail.list, 0);
+    drawPig(PIG_SX + 40, 250 + Math.sin(clock * 2) * 50, Math.cos(clock * 2) * -0.25, clock * 22, 1, true, 1, myLook());
   } else {
     drawMud(camX);
     for (const o of objs) {
@@ -1059,8 +1357,9 @@ function render() {
       else if (o.t === 'cleaver') drawCleaver(o);
     }
     drawItems();
+    drawTrail(trail.list, camX);
     if (state === 'dead' && bacon) drawBacon(bacon.x - camX, bacon.y, bacon.rot);
-    else if (!(state === 'win' && splashed)) drawPig(pig.x - camX, pig.y, pig.ang, pig.flap, 1, true, 1, save.hat);
+    else if (!(state === 'win' && splashed)) drawPig(pig.x - camX, pig.y, pig.ang, pig.flap, 1, true, 1, myLook());
     if (state === 'dead' && lostHat && HAT_BY_ID[save.hat]) {
       ctx.save(); ctx.translate(lostHat.x - camX, lostHat.y); ctx.rotate(lostHat.rot); ctx.translate(0, 10);
       hatImage(HAT_BY_ID[save.hat]); ctx.restore();
@@ -1077,59 +1376,98 @@ function render() {
 // ---------- Shop ----------
 const pvCanvas = $('preview'), pvCtx = pvCanvas.getContext('2d');
 pvCanvas.width = pvCanvas.height = 260 * dpr;
+let shopTab = 'hats', pvLast = 0;
+const SHOP = {
+  hats: { list: HATS, by: HAT_BY_ID, key: 'hat', none: true, on: 'Wearing', equip: 'Wear it', equipped: 'Wearing it!', owned: 'Already in your hog closet.' },
+  wings: { list: WINGS, by: WING_BY_ID, key: 'wing', on: 'Flapping', equip: 'Strap them on', equipped: 'Flapping away!', owned: 'Already in your wing-drobe.' },
+  fx: { list: FX, by: FX_BY_ID, key: 'fx', on: 'Active', equip: 'Turn it on', equipped: 'Looking fab-ulous!', owned: 'Already in your sparkle stash.' },
+};
+const shopLook = () => ({ hat: shopSel.hats, wing: shopSel.wings, fx: shopSel.fx });
 function drawPreview() {
+  const dt = clamp(clock - pvLast, 0, 0.05); pvLast = clock;
   ctx = pvCtx;
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   ctx.clearRect(0, 0, 260, 260);
   ctx.fillStyle = 'rgba(255,255,255,0.7)'; drawCloud(20, 60, 0.9); drawCloud(180, 200, 0.7);
   ctx.fillStyle = 'rgba(0,0,0,0.12)'; ellipse(130, 230, 60, 9); ctx.fill();
-  drawPig(132, 150 + Math.sin(clock * 2.2) * 8, -0.05, clock * 14, 2.8, true, 1, shopSel);
+  const look = shopLook(), by = Math.sin(clock * 2.2) * 3.4, flap = clock * 14;
+  ctx.save(); ctx.translate(132, 150); ctx.scale(2.6, 2.6);
+  emitFx(pvTrail, look.fx, -14, by, dt, { ang: -0.05, flap, look }, -150);
+  stepFx(pvTrail, dt);
+  drawTrail(pvTrail.list, 0);
+  drawPig(0, by, -0.05, flap, 1, true, 1, look);
+  ctx.restore();
   ctx = mainCtx;
 }
-function hatStatus(h) {
-  if (!h) return { owned: true };
-  const owned = save.owned.includes(h.id);
-  const needEggs = h.eggs && totalEggs() < h.eggs ? h.eggs - totalEggs() : 0;
-  return { owned, needEggs, short: Math.max(0, h.price - save.coins) };
+// Wing thumbnails are drawn once into little canvases
+const wingThumbs = {};
+function wingThumb(w) {
+  if (wingThumbs[w.id]) return wingThumbs[w.id];
+  const c = document.createElement('canvas'); c.width = c.height = 120;
+  const prev = ctx; ctx = c.getContext('2d');
+  const saved = clock; clock = 0;
+  ctx.translate(84, 92); ctx.scale(2, 2);
+  ctx.save(); ctx.translate(4, 2); ctx.rotate(-0.55); drawWing(w, true); ctx.restore();
+  ctx.save(); ctx.rotate(-0.05); drawWing(w, false); ctx.restore();
+  clock = saved; ctx = prev;
+  return (wingThumbs[w.id] = c.toDataURL());
+}
+function itemStatus(it) {
+  if (!it || !it.price) return { owned: true };
+  const owned = save.owned.includes(it.id);
+  const needEggs = it.eggs && totalEggs() < it.eggs ? it.eggs - totalEggs() : 0;
+  return { owned, needEggs, short: Math.max(0, it.price - save.coins) };
 }
 function buildShop() {
   $('shopCoins').textContent = save.coins;
   $('shopEggs').textContent = `${totalEggs()}/${TOTAL_EGGS}`;
-  const grid = $('hatGrid'); grid.innerHTML = '';
-  const all = [null, ...HATS];
-  for (const h of all) {
-    const id = h ? h.id : null, st = hatStatus(h);
+  document.querySelectorAll('.shopTabs .tab').forEach(t => { const on = t.dataset.tab === shopTab; t.classList.toggle('on', on); t.setAttribute('aria-selected', on); });
+  const cat = SHOP[shopTab], grid = $('hatGrid'); grid.innerHTML = '';
+  const all = cat.none ? [null, ...cat.list] : cat.list;
+  for (const it of all) {
+    const id = it ? it.id : null, st = itemStatus(it), cur = save[cat.key] === id;
     const b = document.createElement('button');
-    b.className = 'hat' + (st.owned ? ' owned' : '') + (save.hat === id ? ' equipped' : '') + (shopSel === id ? ' sel' : '') + (!st.owned && (st.short || st.needEggs) ? ' cant' : '');
-    const label = !h ? 'Au naturel' : h.name;
-    const price = !h ? 'Free' : save.hat === id ? 'Wearing' : st.owned ? 'Owned' : st.needEggs ? `🔒 ${h.eggs} eggs` : `<i class="coin"></i>${h.price}`;
-    b.innerHTML = (h ? `<img src="${h.img.src}" alt="" draggable="false">` : `<span class="none">🐷</span>`) + `<span>${label}</span><span class="price">${price}</span>`;
-    b.onclick = () => { shopSel = id; buildShop(); };
+    b.className = 'hat' + (st.owned ? ' owned' : '') + (cur ? ' equipped' : '') + (shopSel[shopTab] === id ? ' sel' : '') + (!st.owned && (st.short || st.needEggs) ? ' cant' : '');
+    const label = it ? it.name : 'Au naturel';
+    const price = cur ? cat.on : !it || !it.price ? 'Free' : st.owned ? 'Owned' : st.needEggs ? `🔒 ${it.eggs} eggs` : `<i class="coin"></i>${it.price}`;
+    const thumb = !it ? `<span class="none">🐷</span>`
+      : shopTab === 'hats' ? `<img src="${it.img.src}" alt="" draggable="false">`
+      : shopTab === 'wings' ? `<img src="${wingThumb(it)}" alt="" draggable="false">`
+      : `<span class="none fxIcon">${it.icon}</span>`;
+    b.innerHTML = thumb + `<span>${label}</span><span class="price">${price}</span>`;
+    b.onclick = () => { shopSel[shopTab] = id; buildShop(); };
     grid.appendChild(b);
   }
   updatePreviewPanel();
 }
 function updatePreviewPanel() {
-  const h = HAT_BY_ID[shopSel] || null, st = hatStatus(h), btn = $('pvBtn');
-  $('pvName').textContent = h ? h.name : 'Au naturel';
+  const cat = SHOP[shopTab], sel = shopSel[shopTab], it = cat.by[sel] || null, st = itemStatus(it), btn = $('pvBtn');
+  const desc = it && it.desc;
+  $('pvName').textContent = it ? it.name : 'Au naturel';
   btn.disabled = false;
-  if (save.hat === shopSel) { btn.textContent = 'Wearing it!'; btn.disabled = true; $('pvDesc').textContent = h ? 'Looking sharp, hog.' : 'Just you and your snout.'; }
-  else if (st.owned) { btn.textContent = 'Wear it'; $('pvDesc').textContent = 'Already in your hog closet.'; }
-  else if (st.needEggs) { btn.textContent = `Need ${st.needEggs} more golden eggs`; btn.disabled = true; $('pvDesc').textContent = `Unlocks with ${h.eggs} golden eggs.`; }
-  else if (st.short) { btn.innerHTML = `<i class="coin"></i> ${h.price}`; btn.disabled = true; $('pvDesc').textContent = `${st.short} more coins. Keep hogging them!`; }
-  else { btn.innerHTML = `Buy for <i class="coin"></i> ${h.price}`; $('pvDesc').textContent = 'Try before you buy. Swine-dow shopping!'; }
+  if (save[cat.key] === sel) { btn.textContent = cat.equipped; btn.disabled = true; $('pvDesc').textContent = desc || (it ? 'Looking sharp, hog.' : 'Just you and your snout.'); }
+  else if (st.owned) { btn.textContent = cat.equip; $('pvDesc').textContent = desc || cat.owned; }
+  else if (st.needEggs) { btn.textContent = `Need ${st.needEggs} more golden eggs`; btn.disabled = true; $('pvDesc').textContent = `Unlocks with ${it.eggs} golden eggs.`; }
+  else if (st.short) { btn.innerHTML = `<i class="coin"></i> ${it.price}`; btn.disabled = true; $('pvDesc').textContent = `${st.short} more coins. Keep hogging them!`; }
+  else { btn.innerHTML = `Buy for <i class="coin"></i> ${it.price}`; $('pvDesc').textContent = desc || 'Try before you buy. Swine-dow shopping!'; }
 }
 $('pvBtn').onclick = () => {
-  const h = HAT_BY_ID[shopSel] || null, st = hatStatus(h);
+  const cat = SHOP[shopTab], sel = shopSel[shopTab], it = cat.by[sel] || null, st = itemStatus(it);
   if (!st.owned) {
     if (st.needEggs || st.short) { sfx.nope(); return; }
-    save.coins -= h.price; save.owned.push(h.id); sfx.buy();
+    save.coins -= it.price; save.owned.push(it.id); sfx.buy();
   } else oinkLite(0);
-  save.hat = shopSel;
+  save[cat.key] = sel;
   persist(); buildShop();
 };
+document.querySelectorAll('.shopTabs .tab').forEach(t => t.onclick = () => {
+  if (shopTab === t.dataset.tab) return;
+  shopTab = t.dataset.tab; oinkLite(0); buildShop(); $('hatGrid').scrollTop = 0;
+});
 function openShop(from) {
-  shopFrom = from; shopOpen = true; shopSel = save.hat;
+  shopFrom = from; shopOpen = true;
+  shopSel = { hats: save.hat, wings: save.wing, fx: save.fx };
+  pvTrail.list = []; pvLast = clock;
   ['menu', 'win'].forEach(id => $(id).classList.add('hidden'));
   $('shop').classList.remove('hidden');
   buildShop();
@@ -1322,7 +1660,7 @@ requestAnimationFrame(frame);
 // Exposed for debugging and automated play-testing in the console
 window.__pig = {
   get state() { return state; }, get pig() { return pig; }, get items() { return items; }, get objs() { return objs; },
-  get save() { return save; }, get music() { return music; }, startLevel, LEVELS, HATS, keys, update, render, openShop,
+  get save() { return save; }, get music() { return music; }, startLevel, LEVELS, HATS, WINGS, FX, keys, update, render, openShop,
   // Automated play-testing: freezes save data (coins/eggs/bests) and sound until switched off
   testMode(on) {
     if (on && !noPersist) testSave = JSON.stringify(save);
@@ -1335,7 +1673,7 @@ window.__pig = {
     c.width = cols * cell; c.height = Math.ceil(HATS.length / cols) * cell;
     c.style.cssText = 'position:fixed;inset:0;z-index:99;background:#cfeaff';
     ctx = c.getContext('2d');
-    HATS.forEach((h, i) => { drawPig((i % cols) * cell + 50, Math.floor(i / cols) * cell + 70, 0, 1, 1.6, false, 1, h.id); ctx.fillStyle = '#000'; ctx.font = '10px sans-serif'; ctx.textAlign = 'center'; ctx.fillText(h.id, (i % cols) * cell + 55, Math.floor(i / cols) * cell + 106); });
+    HATS.forEach((h, i) => { drawPig((i % cols) * cell + 50, Math.floor(i / cols) * cell + 70, 0, 1, 1.6, false, 1, { hat: h.id }); ctx.fillStyle = '#000'; ctx.font = '10px sans-serif'; ctx.textAlign = 'center'; ctx.fillText(h.id, (i % cols) * cell + 55, Math.floor(i / cols) * cell + 106); });
     ctx = mainCtx;
     return c;
   },
