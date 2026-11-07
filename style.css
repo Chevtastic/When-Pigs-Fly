@@ -113,15 +113,6 @@ i.egg.fresh { animation: eggPop 0.6s ease-out both; }
 }
 .stats { display: flex; gap: 10px; justify-content: center; margin-bottom: 10px; }
 
-/* ---- level select ---- */
-#levels {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
-  margin: 0 auto 12px;
-  max-width: 640px;
-}
-
 button {
   font-family: inherit;
   cursor: pointer;
@@ -140,21 +131,6 @@ button:active { transform: translateY(3px); box-shadow: 0 2px 0 #d9718f; }
 button.primary { background: #ff6f9c; color: #fff; }
 button:disabled { opacity: 0.55; cursor: default; transform: none; }
 
-.lvl {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-  padding: 8px 6px;
-  min-width: 0;
-}
-.lvl .num { font-size: clamp(20px, 3cqw, 30px); line-height: 1; color: #ff6f9c; }
-.lvl .name { font-size: clamp(12px, 1.6cqw, 16px); line-height: 1.1; }
-.lvl .eggs { display: flex; gap: 3px; font-size: clamp(12px, 1.6cqw, 16px); }
-.lvl .best { font-size: clamp(10px, 1.2cqw, 12px); opacity: 0.75; font-family: system-ui, sans-serif; font-weight: 700; }
-.lvl.done .num::after { content: " \2713"; color: #3aa655; }
-.lvl.locked { background: #eadde2; color: #9a7f8b; box-shadow: 0 5px 0 #c2aab4; }
-.lvl.locked .num { color: #9a7f8b; }
 
 .controls {
   display: flex;
@@ -184,6 +160,10 @@ kbd {
 
 .btns { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 12px; }
 #winStats, #winCoins { font-size: clamp(14px, 1.9cqw, 18px); margin: 4px 0; }
+#win:not(.hidden) .panel { animation: winPop 0.45s cubic-bezier(0.3, 1.5, 0.6, 1) both; }
+#win:not(.hidden) #winTitle { animation: winTitle 1.4s ease-in-out 0.45s infinite; }
+@keyframes winPop { 0% { transform: scale(0.6); opacity: 0; } 100% { transform: none; opacity: 1; } }
+@keyframes winTitle { 50% { transform: scale(1.06) rotate(-1deg); } }
 #winCoins { display: flex; align-items: center; justify-content: center; gap: 6px; flex-wrap: wrap; }
 .eggRow { display: flex; gap: 8px; justify-content: center; font-size: clamp(26px, 4cqw, 40px); margin: 4px 0; }
 
@@ -224,6 +204,14 @@ body:not(.is-ios) .iosTip { display: none !important; }
   width: 16px; height: 16px; border-radius: 50%;
   background: #fff; border: 3px solid #5a2340; box-shadow: 0 2px 0 #2c1020;
 }
+
+/* volume dropdown on the island and area screens: a speaker button that opens the slider */
+.volDrop { position: relative; flex: none; }
+.volBtn { font-size: clamp(16px, 2.2cqw, 22px); }
+.volPop { position: absolute; top: calc(100% + 10px); right: 0; z-index: 5; }
+.volPop .vol { box-shadow: 0 5px 0 #d9718f, 0 8px 22px rgba(40, 10, 30, 0.35); }
+.volPop::before { content: ""; position: absolute; top: -7px; right: clamp(10px, 1.6cqw, 16px); border: 8px solid transparent; border-top: 0; border-bottom-color: #ffe1ea; }
+.areaSub .volBtn { width: clamp(30px, 4cqw, 38px); height: clamp(30px, 4cqw, 38px); font-size: clamp(14px, 1.8cqw, 18px); box-shadow: 0 4px 0 #d9718f; background: #ffe1ea; }
 
 /* ---- in-game buttons ---- */
 #hudBtns {
@@ -348,12 +336,81 @@ button.icon {
   .menuPanel { width: 96%; }
   .tag { margin: 2px 0 6px; }
   .stats { margin-bottom: 6px; }
-  #levels { gap: 7px; margin-bottom: 4px; }
-  .lvl { padding: 5px 4px; border-radius: 10px; }
-  .btns { margin-top: 8px; gap: 8px; }
+    .btns { margin-top: 8px; gap: 8px; }
   button { padding: 7px 14px; border-radius: 11px; }
   .controls { margin-top: 6px; }
   .iosTip { margin-top: 4px; }
   .shopPanel { padding: 8px 10px; }
   .preview { flex-basis: 30%; }
 }
+
+/* ---- overworld (island) ---- */
+#map { position: absolute; inset: 0; pointer-events: none; }
+.mapTop {
+  position: absolute; top: 2.5%; left: 1.5%; right: 1.5%;
+  display: flex; align-items: center; gap: 1cqw;
+}
+.mapTop > button, .mapTop > .volDrop, #mapShop, .mapWallet { pointer-events: auto; }
+#mapShop { position: absolute; right: 1.5%; bottom: 3%; }
+.mapTitle { margin: 0 auto 0 0.5cqw; font-size: clamp(18px, 3.2cqw, 34px); color: #fff; text-shadow: 2px 2px 0 #5a2340, 0 0 10px rgba(0, 0, 0, 0.25); }
+#mapShop, .headBtn { padding: 6px 14px; white-space: nowrap; }
+.backBtn { display: inline-flex; align-items: center; gap: 4px; padding: 6px 14px 6px 8px; white-space: nowrap; flex: none; }
+.mapWallet { position: absolute; left: 1.5%; bottom: 3%; display: flex; gap: 8px; }
+.mapHint { margin: 0 1cqw 0 0; font-size: clamp(11px, 1.5cqw, 16px); color: #fff; text-shadow: 1px 1px 0 #5a2340; }
+
+/* ---- area screen (level cards) ---- */
+#area { background: rgba(20, 10, 40, 0.2); }
+/* the panel and its side arrows (the arrows sit outside the panel, which scrolls and would clip them) */
+.areaWrap { position: relative; display: flex; width: min(calc(100% - 1.1 * clamp(40px, 5.6cqw, 56px) - 16px), 760px); max-height: 100%; }
+.areaPanel { flex: 1; min-width: 0; max-width: none; }
+.areaHead { display: flex; align-items: center; gap: 10px; }
+.areaHead h2 { margin: 0 auto 0 4px; text-align: left; font-size: clamp(20px, 3.6cqw, 38px); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.areaSub { display: flex; align-items: center; gap: 8px; margin: 4px 0 10px; }
+.areaSub .pill { font-size: clamp(12px, 1.5cqw, 17px); }
+.areaPanel .tag { text-align: left; margin: 0 auto 0 0; }
+#areaNext { margin: 10px 0 0; font-size: clamp(12px, 1.5cqw, 16px); color: #8a4566; }
+#areaNext:empty { display: none; }
+/* arrows on the panel's sides: jump to the area before / after */
+.areaArrow { position: absolute; top: 50%; translate: 0 -50%; z-index: 1; width: clamp(40px, 5.6cqw, 56px); padding: 8px 0 6px; border-radius: 16px;
+  display: flex; flex-direction: column; align-items: center; gap: 2px; line-height: 1; font-size: clamp(14px, 2cqw, 20px); border: 3px solid #ff8fb0; }
+.areaArrow.left { left: calc(clamp(40px, 5.6cqw, 56px) / -2 - 5px); }
+.areaArrow.right { right: calc(clamp(40px, 5.6cqw, 56px) / -2 - 5px); }
+.areaArrow:active { transform: translateY(3px); }
+.areaArrow svg { width: 1.2em; height: 1.2em; }
+.areaArrow.locked { background: #eadde2; color: #9a7f8b; border-color: #c2aab4; box-shadow: 0 5px 0 #c2aab4; }
+.areaArrow.hidden { display: none; }
+#areaNext .pill { font-size: inherit; margin-left: 4px; }
+
+/* ---- level select ---- */
+#levels {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin: 0 auto 4px;
+}
+.lvl {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 10px 6px;
+  min-width: 0;
+}
+.lvl .num { font-size: clamp(20px, 3cqw, 30px); line-height: 1; color: #ff6f9c; }
+.lvl .name { font-size: clamp(12px, 1.6cqw, 16px); line-height: 1.1; }
+.lvl .eggs { display: flex; gap: 3px; font-size: clamp(12px, 1.6cqw, 16px); }
+.lvl .best { font-size: clamp(10px, 1.2cqw, 12px); opacity: 0.75; font-family: system-ui, sans-serif; font-weight: 700; }
+.lvl.done .num::after { content: " \2713"; color: #3aa655; }
+.lvl.next { outline: 3px solid #ff6f9c; animation: nextPulse 1.2s ease-in-out infinite; }
+@keyframes nextPulse { 50% { outline-color: rgba(255, 111, 156, 0.35); } }
+.lvl.locked { background: #eadde2; color: #9a7f8b; box-shadow: 0 5px 0 #c2aab4; }
+.lvl.locked .num { color: #9a7f8b; }
+@media (max-height: 520px) {
+  #levels { gap: 7px; }
+  .lvl { padding: 6px 4px; border-radius: 10px; }
+  .areaSub { margin-bottom: 6px; }
+}
+
+/* ---- title screen ---- */
+.bigPlay { display: inline-flex; flex-direction: column; align-items: center; font-size: clamp(20px, 3.4cqw, 34px); padding: 10px 48px; margin: 4px 0 2px; line-height: 1.1; }
+.bigPlay small { font-size: 0.45em; opacity: 0.9; margin-top: 2px; }

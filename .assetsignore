@@ -7,3 +7,7 @@ node_modules
 wrangler.jsonc
 README.md
 assets/hats/HatPack.zip
+*.exe
+tools
+assets/*.png
+assets/Music/*.wav
