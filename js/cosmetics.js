@@ -3,50 +3,50 @@
 // ---------- Hats (assets/hats/*.png) ----------
 // box = trimmed pixel bounds inside the 128x128 image; w = drawn width on the pig; dx/dy nudge; r = tilt
 const HATS = [
-  { id: 'baseballCap', name: 'Ham Run Cap', price: 30, box: [0, 28, 128, 64], w: 40 },
-  { id: 'beanie', name: 'Sow Cozy Beanie', price: 30, box: [0, 12, 128, 106], w: 36, dy: 4 },
-  { id: 'catEars', name: 'Purr-k Chop Ears', price: 30, box: [31, 2, 65, 124], w: 22, dy: 3 },
-  { id: 'bunny', name: 'Easter Ham Ears', price: 30, box: [35, 2, 68, 124], w: 21, dy: 3 },
-  { id: 'hardHat', name: 'Ham-struction Hat', price: 30, box: [2, 26, 124, 77], w: 40 },
-  { id: 'police', name: 'Officer Oinksalot', price: 30, box: [2, 32, 126, 63], w: 40 },
-  { id: 'cowboy', name: 'Rootin\' Tootin\' Rooter', price: 60, box: [1, 30, 126, 73], w: 46 },
-  { id: 'beanieWithTassels', name: 'Swine-ter Tassels', price: 60, box: [4, 0, 120, 128], w: 36, dy: 4 },
-  { id: 'fireman', name: 'Smokehouse Chief', price: 60, box: [0, 34, 128, 60], w: 44 },
-  { id: 'outback', name: 'Crocodile Hog-dee', price: 60, box: [3, 36, 122, 50], w: 46 },
-  { id: 'army', name: 'Private Porker', price: 60, box: [2, 23, 125, 82], w: 40, dy: 2 },
-  { id: '50sMilitary', name: 'Sergeant Swine', price: 60, box: [0, 32, 128, 64], w: 38 },
-  { id: '50sNurse', name: 'Nurse Oinkment', price: 60, box: [0, 26, 128, 74], w: 34 },
-  { id: 'captains', name: 'Cap\'n Hamhock', price: 60, box: [0, 30, 128, 72], w: 40 },
-  { id: 'robinhood', name: 'Robin Hog', price: 60, box: [0, 36, 128, 58], w: 42 },
-  { id: 'tophat', name: 'Top Hog', price: 100, box: [1, 11, 124, 107], w: 38 },
-  { id: 'bowlerHat', name: 'Sir Hamilton\'s Bowler', price: 100, box: [0, 29, 128, 94], w: 36 },
-  { id: 'classicFedora', name: 'Indiana Jowls', price: 100, box: [0, 29, 128, 68], w: 42 },
-  { id: 'fez', name: 'Hog Fez-tival', price: 100, box: [0, 12, 128, 106], w: 30 },
-  { id: 'beret', name: 'Pig-casso Beret', price: 100, box: [0, 0, 128, 128], w: 36, dy: 4 },
-  { id: 'graduation', name: 'Bachelor of Bacon', price: 100, box: [0, 16, 128, 94], w: 42 },
-  { id: 'birthday', name: 'Hap-pig Birthday', price: 100, box: [4, 0, 120, 128], w: 28 },
-  { id: 'sunhat', name: 'Sun-Dried Ham', price: 100, box: [1, 13, 125, 101], w: 48, dy: 4 },
-  { id: 'takuhatsugasa', name: 'Sow-murai Straw Hat', price: 100, box: [0, 32, 128, 64], w: 48 },
-  { id: 'waldo', name: 'Where\'s Oink-o?', price: 100, box: [0, 16, 128, 96], w: 36, dy: 4 },
-  { id: 'lumberjack', name: 'Timberrr-oink', price: 100, box: [24, 2, 82, 125], w: 25, dy: 4 },
-  { id: 'redBonnet', name: 'Little Red Riding Hog', price: 100, box: [1, 22, 126, 87], w: 40, dy: 8 },
-  { id: 'antlers', name: 'Hambi Antlers', price: 160, box: [20, 3, 91, 122], w: 31, dy: 3 },
-  { id: 'leprechaun', name: 'Pot o\' Pork', price: 160, box: [2, 16, 124, 96], w: 40 },
-  { id: 'pinwheel', name: 'Hog-copter', price: 160, box: [0, 10, 128, 108], w: 38, dy: 3 },
-  { id: 'umbrella', name: 'Pig-brella', price: 160, box: [0, 20, 128, 86], w: 44, dy: 3 },
-  { id: 'hotdog', name: 'Hot Diggity Hog', price: 160, box: [0, 32, 128, 66], w: 42 },
-  { id: 'freakazoid', name: 'Bed-Head Boar', price: 160, box: [0, 17, 128, 94], w: 38, dy: 6 },
-  { id: 'wig', name: 'Big Pig Wig', price: 160, box: [1, 12, 126, 106], w: 42, dy: 9 },
-  { id: 'ww1German', name: 'Pickle-Pork Helmet', price: 160, box: [0, 6, 128, 117], w: 36, dy: 4 },
-  { id: 'bicorn', name: 'Napoleon Ham-aparte', price: 160, box: [0, 20, 128, 88], w: 46 },
-  { id: 'viking', name: 'Ragnar Hogbrok', price: 250, box: [0, 16, 128, 94], w: 44, dy: 4 },
-  { id: 'spartan', name: 'This Is Spar-HAM!', price: 250, box: [0, 6, 128, 116], w: 38, dy: 5 },
-  { id: 'shark', name: 'Ham-merhead', price: 250, box: [0, 6, 128, 116], w: 40, dy: 6 },
-  { id: 'skeleton', name: 'Spare Ribs', price: 250, box: [2, 5, 124, 116], w: 36, dy: 7 },
-  { id: 'princess', name: 'Princess Truffle', price: 250, box: [0, 10, 128, 110], w: 38, dy: 4 },
-  { id: 'horseHead', name: 'Trojan Hog', price: 250, box: [2, 10, 124, 110], w: 50, dy: 24, dx: 2, r: 0 },
-  { id: 'tiara', name: 'Pork Pageant Tiara', price: 300, eggs: 9, box: [2, 8, 122, 113], w: 32, dy: 2 },
-  { id: 'crown', name: 'Ham-peror\'s Crown', price: 500, eggs: TOTAL_EGGS, box: [1, 23, 125, 82], w: 36 },
+  { id: 'baseballCap', name: 'Ham Run Cap', price: 40, box: [0, 28, 128, 64], w: 40 },
+  { id: 'beanie', name: 'Sow Cozy Beanie', price: 45, box: [0, 12, 128, 106], w: 36, dy: 4 },
+  { id: 'catEars', name: 'Purr-k Chop Ears', price: 55, box: [31, 2, 65, 124], w: 22, dy: 3 },
+  { id: 'bunny', name: 'Easter Ham Ears', price: 55, box: [35, 2, 68, 124], w: 21, dy: 3 },
+  { id: 'hardHat', name: 'Ham-struction Hat', price: 70, box: [2, 26, 124, 77], w: 40 },
+  { id: 'police', name: 'Officer Oinksalot', price: 85, box: [2, 32, 126, 63], w: 40 },
+  { id: 'cowboy', name: 'Rootin\' Tootin\' Rooter', price: 120, box: [1, 30, 126, 73], w: 46 },
+  { id: 'beanieWithTassels', name: 'Swine-ter Tassels', price: 90, box: [4, 0, 120, 128], w: 36, dy: 4 },
+  { id: 'fireman', name: 'Smokehouse Chief', price: 140, box: [0, 34, 128, 60], w: 44 },
+  { id: 'outback', name: 'Crocodile Hog-dee', price: 110, box: [3, 36, 122, 50], w: 46 },
+  { id: 'army', name: 'Private Porker', price: 100, box: [2, 23, 125, 82], w: 40, dy: 2 },
+  { id: '50sMilitary', name: 'Sergeant Swine', price: 130, box: [0, 32, 128, 64], w: 38 },
+  { id: '50sNurse', name: 'Nurse Oinkment', price: 125, box: [0, 26, 128, 74], w: 34 },
+  { id: 'captains', name: 'Cap\'n Hamhock', price: 175, box: [0, 30, 128, 72], w: 40 },
+  { id: 'robinhood', name: 'Robin Hog', price: 160, box: [0, 36, 128, 58], w: 42 },
+  { id: 'tophat', name: 'Top Hog', price: 300, box: [1, 11, 124, 107], w: 38 },
+  { id: 'bowlerHat', name: 'Sir Hamilton\'s Bowler', price: 240, box: [0, 29, 128, 94], w: 36 },
+  { id: 'classicFedora', name: 'Indiana Jowls', price: 280, box: [0, 29, 128, 68], w: 42 },
+  { id: 'fez', name: 'Hog Fez-tival', price: 200, box: [0, 12, 128, 106], w: 30 },
+  { id: 'beret', name: 'Pig-casso Beret', price: 220, box: [0, 0, 128, 128], w: 36, dy: 4 },
+  { id: 'graduation', name: 'Bachelor of Bacon', price: 260, box: [0, 16, 128, 94], w: 42 },
+  { id: 'birthday', name: 'Hap-pig Birthday', price: 150, box: [4, 0, 120, 128], w: 28 },
+  { id: 'sunhat', name: 'Sun-Dried Ham', price: 190, box: [1, 13, 125, 101], w: 48, dy: 4 },
+  { id: 'takuhatsugasa', name: 'Sow-murai Straw Hat', price: 320, box: [0, 32, 128, 64], w: 48 },
+  { id: 'waldo', name: 'Where\'s Oink-o?', price: 210, box: [0, 16, 128, 96], w: 36, dy: 4 },
+  { id: 'lumberjack', name: 'Timberrr-oink', price: 230, box: [24, 2, 82, 125], w: 25, dy: 4 },
+  { id: 'redBonnet', name: 'Little Red Riding Hog', price: 250, box: [1, 22, 126, 87], w: 40, dy: 8 },
+  { id: 'antlers', name: 'Hambi Antlers', price: 380, box: [20, 3, 91, 122], w: 31, dy: 3 },
+  { id: 'leprechaun', name: 'Pot o\' Pork', price: 420, box: [2, 16, 124, 96], w: 40 },
+  { id: 'pinwheel', name: 'Hog-copter', price: 360, box: [0, 10, 128, 108], w: 38, dy: 3 },
+  { id: 'umbrella', name: 'Pig-brella', price: 340, box: [0, 20, 128, 86], w: 44, dy: 3 },
+  { id: 'hotdog', name: 'Hot Diggity Hog', price: 450, box: [0, 32, 128, 66], w: 42 },
+  { id: 'freakazoid', name: 'Bed-Head Boar', price: 400, box: [0, 17, 128, 94], w: 38, dy: 6 },
+  { id: 'wig', name: 'Big Pig Wig', price: 480, box: [1, 12, 126, 106], w: 42, dy: 9 },
+  { id: 'ww1German', name: 'Pickle-Pork Helmet', price: 440, box: [0, 6, 128, 117], w: 36, dy: 4 },
+  { id: 'bicorn', name: 'Napoleon Ham-aparte', price: 520, box: [0, 20, 128, 88], w: 46 },
+  { id: 'viking', name: 'Ragnar Hogbrok', price: 650, box: [0, 16, 128, 94], w: 44, dy: 4 },
+  { id: 'spartan', name: 'This Is Spar-HAM!', price: 720, box: [0, 6, 128, 116], w: 38, dy: 5 },
+  { id: 'shark', name: 'Ham-merhead', price: 800, box: [0, 6, 128, 116], w: 40, dy: 6 },
+  { id: 'skeleton', name: 'Spare Ribs', price: 680, box: [2, 5, 124, 116], w: 36, dy: 7 },
+  { id: 'princess', name: 'Princess Truffle', price: 750, box: [0, 10, 128, 110], w: 38, dy: 4 },
+  { id: 'horseHead', name: 'Trojan Hog', price: 900, box: [2, 10, 124, 110], w: 50, dy: 24, dx: 2, r: 0 },
+  { id: 'tiara', name: 'Pork Pageant Tiara', price: 1000, eggs: 9, box: [2, 8, 122, 113], w: 32, dy: 2 },
+  { id: 'crown', name: 'Ham-peror\'s Crown', price: 1500, eggs: TOTAL_EGGS, box: [1, 23, 125, 82], w: 36 },
 ];
 const HAT_BY_ID = {};
 for (const h of HATS) {
@@ -172,6 +172,7 @@ function drawWing(w, back) {
       ctx.fillStyle = '#5a6a7a'; circle(0, 0, 4); ctx.fill();
       break;
     }
+    default: if (WING_STYLES[w.style]) shade = WING_STYLES[w.style](w, back);
   }
   if (back && shade) { ctx.shadowBlur = 0; ctx.fillStyle = 'rgba(40,20,70,0.14)'; ctx.fill(shade); }
   ctx.restore();
@@ -298,12 +299,13 @@ function drawTrail(list, cam) {
         ctx.globalAlpha = base * Math.min(1, a * 1.6) * 0.9;
         RAINBOW.forEach((c, i) => { ctx.fillStyle = c; ctx.fillRect(-3, -9 + i * 3, 6, 3); }); break;
       case 'ghost': ctx.globalAlpha = base * a * 0.35; drawPig(0, 0, p.ang, p.flap, 1, true, 1, p.look); break;
+      default: if (PARTICLE_DRAW[p.k]) PARTICLE_DRAW[p.k](p, a, s, base);
     }
     ctx.restore();
   }
 }
 // Auras are drawn in pig space (body centre at 0,0, head at 18,-6), behind (front=false) or over the pig
-function drawAura(kind, front, hat) {
+function drawAura(kind, front, hat, fx) {
   ctx.save();
   if (kind === 'fire') {
     if (!front) {
@@ -343,7 +345,7 @@ function drawAura(kind, front, hat) {
       ctx.beginPath(); ctx.ellipse(17, hy, 13, 4, -0.1, 0, Math.PI * 2); ctx.stroke();
       ctx.shadowBlur = 0; ctx.strokeStyle = 'rgba(255,255,255,0.8)'; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.ellipse(17, hy, 13, 4, -0.1, Math.PI * 1.1, Math.PI * 1.6); ctx.stroke();
     }
-  }
+  } else if (AURAS[kind]) AURAS[kind](front, hat, fx);
   ctx.restore();
 }
 

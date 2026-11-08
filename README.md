@@ -110,6 +110,8 @@ Plain scripts in `js/`, loaded in order by `index.html` (they share one scope, s
 | `areas/*.js` | One file per area with its levels and map positions (`areas/farm.js` = the original six) |
 | `world.js` | Area order, unlock rules, coming-soon areas |
 | `cosmetics.js` | Hats, wings and effects |
+| `cosmetics-deluxe.js` | Premium (600+ coin) animated hats, wings and effects, all drawn in code |
+| `cosmetics-extra.js` | More premium designs (halos, unicorn horns, 8-bit/jet/clockwork/flame wings, magic circles, portals...) |
 | `save.js` | Save data, including upgrading old saves |
 | `audio.js` | Sound effects and music (`PLAYLISTS`: tracks in `assets/Music/`, with optional per-area playlists keyed by area id) |
 | `draw.js` | Drawing helpers: the pig, coins, eggs, backgrounds |
@@ -143,7 +145,7 @@ b.spikes(900, 3, 'floor', 45)        // x, count, 'floor' | 'ceil', height
 
 **Sprite art:** drop the big source image in `assets/`, add a line for it in `tools/sprites.py` (size and name), then run `python tools/sprites.py` (needs `pip install pillow`). That writes the small game-sized copies to `assets/sprites/`. Add the name to `SPRITE_NAMES` in `js/sprites.js`, and draw it with `spr('name')` (it's `null` until the image has loaded). The script also writes `js/sprite-shapes.js` (the giant crab's outline, used as its hitbox). The big originals aren't deployed. The beach's sandcastles, anemones, gulls, coconuts, palm trees and giant crabs are all whole sprites.
 
-Hats live in `assets/hats/` and are listed in the `HATS` table in `js/cosmetics.js` (name, price, and how to fit them on the pig's head).  Wings (`WINGS`) and effects (`FX`) are drawn in code, so new ones only need an entry in those tables. To check how every hat sits on the pig, run `document.body.append(__pig.hatSheet())` in the browser console.
+Hats live in `assets/hats/` and are listed in the `HATS` table in `js/cosmetics.js` (name, price, and how to fit them on the pig's head).  Wings (`WINGS`) and effects (`FX`) are drawn in code, so new ones only need an entry in those tables. To check how every hat sits on the pig, run `document.body.append(__pig.hatSheet())` in the browser console. Glowing, animated premium items live in `js/cosmetics-deluxe.js`; the top of that file explains how to add one.
 
 ## Deploying to Cloudflare
 

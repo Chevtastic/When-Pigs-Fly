@@ -39,6 +39,18 @@ function wingThumb(w) {
   clock = saved; ctx = prev;
   return (wingThumbs[w.id] = c.toDataURL());
 }
+// Code-drawn hats get a thumbnail of a pig head wearing them
+const hatThumbs = {};
+function hatThumb(h) {
+  if (hatThumbs[h.id]) return hatThumbs[h.id];
+  const c = document.createElement('canvas'); c.width = c.height = 120;
+  const prev = ctx; ctx = c.getContext('2d');
+  const saved = clock; clock = 0.4;
+  ctx.translate(60, 90); ctx.scale(1.8, 1.8); ctx.translate(-18, 10);
+  drawPigHead(); drawHatOnHead(h.id);
+  clock = saved; ctx = prev;
+  return (hatThumbs[h.id] = c.toDataURL());
+}
 function itemStatus(it) {
   if (!it || !it.price) return { owned: true };
   const owned = save.owned.includes(it.id);
@@ -54,11 +66,11 @@ function buildShop() {
   for (const it of all) {
     const id = it ? it.id : null, st = itemStatus(it), cur = save[cat.key] === id;
     const b = document.createElement('button');
-    b.className = 'hat' + (st.owned ? ' owned' : '') + (cur ? ' equipped' : '') + (shopSel[shopTab] === id ? ' sel' : '') + (!st.owned && (st.short || st.needEggs) ? ' cant' : '');
+    b.className = 'hat' + (st.owned ? ' owned' : '') + (cur ? ' equipped' : '') + (shopSel[shopTab] === id ? ' sel' : '') + (!st.owned && (st.short || st.needEggs) ? ' cant' : '') + (it && it.lux ? ' lux' : '');
     const label = it ? it.name : 'Au naturel';
     const price = cur ? cat.on : !it || !it.price ? 'Free' : st.owned ? 'Owned' : st.needEggs ? `🔒 ${it.eggs} eggs` : `<i class="coin"></i>${it.price}`;
     const thumb = !it ? `<span class="none">🐷</span>`
-      : shopTab === 'hats' ? `<img src="${it.img.src}" alt="" draggable="false">`
+      : shopTab === 'hats' ? `<img src="${it.draw ? hatThumb(it) : it.img.src}" alt="" draggable="false">`
       : shopTab === 'wings' ? `<img src="${wingThumb(it)}" alt="" draggable="false">`
       : `<span class="none fxIcon">${it.icon}</span>`;
     b.innerHTML = thumb + `<span>${label}</span><span class="price">${price}</span>`;

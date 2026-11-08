@@ -1,8 +1,8 @@
 """Local dev server that tells the browser never to cache, so edited files always show up on reload.
 
-Run from the project root:  python tools/serve.py [port]   (default 8123)
+Run from the project root:  python tools/serve.py [port]   (default: $PORT, else 8123)
 """
-import http.server, sys
+import http.server, os, sys
 
 
 class NoCache(http.server.SimpleHTTPRequestHandler):
@@ -11,5 +11,5 @@ class NoCache(http.server.SimpleHTTPRequestHandler):
         super().end_headers()
 
 
-port = int(sys.argv[1]) if len(sys.argv) > 1 else 8123
+port = int(sys.argv[1]) if len(sys.argv) > 1 else int(os.environ.get('PORT', 8123))
 http.server.ThreadingHTTPServer(('', port), NoCache).serve_forever()
