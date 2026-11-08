@@ -326,6 +326,18 @@ button.icon {
 .hat.sel { outline: 3px solid #ff6f9c; }
 .hat.equipped.sel { outline-color: #3aa655; }
 .hat.cant { opacity: 0.6; }
+/* premium items (js/cosmetics-deluxe.js): dark card with a shifting rainbow rim */
+.hat.lux { background: linear-gradient(160deg, #2b1656, #0c0a22); color: #fff; box-shadow: 0 4px 0 #5a33b8, 0 0 12px rgba(150, 100, 255, 0.55); }
+.hat.lux::before {
+  content: ''; position: absolute; inset: 0; border-radius: inherit; padding: 2px; pointer-events: none;
+  background: linear-gradient(120deg, #ff5a5a, #ffe14d, #6ee26e, #5ab4ff, #b07cff, #ff5a5a); background-size: 300% 100%;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude;
+  animation: luxShift 3s linear infinite;
+}
+.hat.lux.owned { box-shadow: 0 4px 0 #3aa655, 0 0 12px rgba(110, 226, 110, 0.5); }
+.hat.lux.equipped { background: linear-gradient(160deg, #1d4a2a, #0a2214); }
+@keyframes luxShift { to { background-position: 300% 0; } }
+@media (prefers-reduced-motion: reduce) { .hat.lux::before { animation: none; } }
 
 /* ---- rotate prompt (phones in portrait) ---- */
 #rotate { display: none; position: fixed; z-index: 10; background: #1b1430; }

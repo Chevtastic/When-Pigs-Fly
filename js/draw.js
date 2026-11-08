@@ -17,6 +17,7 @@ function text(str, x, y, size, fill = '#fff', align = 'center', stroke = '#5a234
 
 // Draws a hat image with its brim's bottom-centre at the current origin
 function hatImage(h) {
+  if (h.draw) { ctx.save(); ctx.lineJoin = ctx.lineCap = 'round'; h.draw(); ctx.restore(); return; }
   if (!h.img.complete || !h.img.naturalWidth) return;
   const [bx, by, bw, bh] = h.box, w = h.w || 38, hh = bh * w / bw;
   ctx.drawImage(h.img, bx, by, bw, bh, -w / 2, -hh, w, hh);
@@ -27,22 +28,9 @@ function drawHatOnHead(id) {
   hatImage(h);
   ctx.restore();
 }
-// look = { hat, wing, fx } (any may be missing)
-function drawPig(x, y, ang, flap, s = 1, wings = true, flip = 1, look = null) {
-  const hat = look && look.hat, wg = (look && WING_BY_ID[look.wing]) || WINGS[0], fx = look && FX_BY_ID[look.fx];
-  ctx.save(); ctx.translate(x, y); ctx.rotate(ang); ctx.scale(s * flip, s);
-  const wa = Math.sin(flap * (wg.flap || 1)) * 0.7;
-  if (fx && fx.aura) drawAura(fx.aura, false, hat);
-  if (wings) { ctx.save(); ctx.translate(-2, -14); ctx.rotate(-0.5 + wa); drawWing(wg, true); ctx.restore(); }
-  // tail
-  ctx.strokeStyle = '#e07a9a'; ctx.lineWidth = 3; ctx.lineCap = 'round';
-  ctx.beginPath(); ctx.moveTo(-24, -4); ctx.bezierCurveTo(-34, -14, -40, 2, -31, 2); ctx.bezierCurveTo(-26, 2, -28, -6, -34, -4); ctx.stroke();
-  // legs
-  for (const lx of [-16, -6, 8, 17]) { ctx.fillStyle = '#f293b2'; ctx.fillRect(lx - 3, 11, 7, 10); ctx.fillStyle = '#a8456a'; ctx.fillRect(lx - 3, 19, 7, 3); }
-  // body
+// Head, ear, snout, eye and cheek (head centre at 18,-6); also used for the shop's code-drawn hat thumbnails
+function drawPigHead() {
   ctx.fillStyle = '#ffb3c8'; ctx.strokeStyle = '#d96b8e'; ctx.lineWidth = 2;
-  ellipse(0, 0, 26, 19); ctx.fill(); ctx.stroke();
-  ctx.fillStyle = 'rgba(255,255,255,0.35)'; ellipse(-4, -8, 14, 6); ctx.fill();
   // head
   ctx.fillStyle = '#ffb3c8'; circle(18, -6, 15); ctx.fill(); ctx.stroke();
   // ear
@@ -54,9 +42,27 @@ function drawPig(x, y, ang, flap, s = 1, wings = true, flip = 1, look = null) {
   ctx.fillStyle = '#fff'; circle(22, -11, 4.2); ctx.fill();
   ctx.fillStyle = '#222'; circle(23.2, -11, 2.3); ctx.fill();
   ctx.fillStyle = 'rgba(255,110,150,0.45)'; circle(20, -1, 3.5); ctx.fill();
+}
+// look = { hat, wing, fx } (any may be missing)
+function drawPig(x, y, ang, flap, s = 1, wings = true, flip = 1, look = null) {
+  const hat = look && look.hat, wg = (look && WING_BY_ID[look.wing]) || WINGS[0], fx = look && FX_BY_ID[look.fx];
+  ctx.save(); ctx.translate(x, y); ctx.rotate(ang); ctx.scale(s * flip, s);
+  const wa = Math.sin(flap * (wg.flap || 1)) * 0.7;
+  if (fx && fx.aura) drawAura(fx.aura, false, hat, fx);
+  if (wings) { ctx.save(); ctx.translate(-2, -14); ctx.rotate(-0.5 + wa); drawWing(wg, true); ctx.restore(); }
+  // tail
+  ctx.strokeStyle = '#e07a9a'; ctx.lineWidth = 3; ctx.lineCap = 'round';
+  ctx.beginPath(); ctx.moveTo(-24, -4); ctx.bezierCurveTo(-34, -14, -40, 2, -31, 2); ctx.bezierCurveTo(-26, 2, -28, -6, -34, -4); ctx.stroke();
+  // legs
+  for (const lx of [-16, -6, 8, 17]) { ctx.fillStyle = '#f293b2'; ctx.fillRect(lx - 3, 11, 7, 10); ctx.fillStyle = '#a8456a'; ctx.fillRect(lx - 3, 19, 7, 3); }
+  // body
+  ctx.fillStyle = '#ffb3c8'; ctx.strokeStyle = '#d96b8e'; ctx.lineWidth = 2;
+  ellipse(0, 0, 26, 19); ctx.fill(); ctx.stroke();
+  ctx.fillStyle = 'rgba(255,255,255,0.35)'; ellipse(-4, -8, 14, 6); ctx.fill();
+  drawPigHead();
   if (hat) drawHatOnHead(hat);
   if (wings) { ctx.save(); ctx.translate(-5, -11); ctx.rotate(-0.2 - wa); drawWing(wg, false); ctx.restore(); }
-  if (fx && fx.aura) drawAura(fx.aura, true, hat);
+  if (fx && fx.aura) drawAura(fx.aura, true, hat, fx);
   ctx.restore();
 }
 function drawBacon(x, y, rot) {
