@@ -31,7 +31,9 @@ function startLevel(L) {
 function pruneCoins(list) {
   return list.filter(it => {
     if (it.t !== 'coin') return true;
-    if (it.y < 30 || it.y > GROUND - 14) return false;
+    if (it.y < (level.top ?? 0) + 30 || it.y > (level.bottom ?? GROUND) - 14) return false;
+    if (level.vert && solidAt(it.x, it.y)) return false;
+    for (const e of list) if (e.t === 'egg' && Math.abs(e.x - it.x) < 46 && Math.abs(e.y - it.y) < 46) return false; // never on an egg
     for (const o of objs) { const h = HAZARDS[o.t]; if (h.blocksCoin && h.blocksCoin(o, it)) return false; }
     return true;
   });
@@ -41,9 +43,11 @@ function resetAttempt() {
   attempts++;
   const b = level.build();
   objs = b.objs;
+  geo = level.vert ? finishGeo(b, level) : { solids: [], subways: [], holes: [], rails: [], ramps: [] };
   items = pruneCoins(b.items);
   pig = newPig();
-  camX = pig.x - PIG_SX;
+  if (level.startY != null) pig.y = level.startY; // e.g. start down in the undercity or up in the sky
+  camX = pig.x - PIG_SX; camY = level.startY != null ? clamp(level.startY - 300, (level.top ?? 0) - 40, (level.bottom ?? GROUND) + 70 - H) : 0;
   levelT = 0; particles = []; bacon = null; lostHat = null; shake = 0; splashed = false;
   trail.list = []; trail.acc = 0;
   runCoins = 0; runEggs = 0;
@@ -125,21 +129,28 @@ function update(dt) {
 
   if (state === 'playing') {
     levelT += dt;
-    const spd = level.speed * (keys.boost ? BOOST : 1);
+    const spd = level.speed * (keys.boost ? BOOST : 1) * (pig.grind > 0 ? RAIL_BOOST : 1);
+    const prevY = pig.y, wasGround = pig.ground;
     pig.x += spd * dt;
     pig.vy = clamp(pig.vy + (keys.up ? -THRUST : GRAV) * dt, -MAXV, MAXV);
     pig.y += pig.vy * dt;
     pig.ground = false;
-    if (pig.y < 26) { pig.y = 26; pig.vy = Math.max(0, pig.vy); }
-    if (pig.y > GROUND - 22) { pig.y = GROUND - 22; pig.vy = Math.min(0, pig.vy); pig.ground = true; }
+    if (level.vert) railStep(spd, dt, prevY);
+    const ceil = (level.top ?? 0) + 26, flr = (level.bottom ?? GROUND) - 22;
+    if (pig.y < ceil) { pig.y = ceil; pig.vy = Math.max(0, pig.vy); }
+    if (pig.y > flr) { pig.y = flr; pig.vy = Math.min(0, pig.vy); pig.ground = true; }
+    if (level.vert) rampStep();
+    const wall = level.vert && solidStep(prevY, wasGround);
+    if (wall) { die(wall); return; }
     pig.flap += dt * (keys.up ? 30 : pig.ground ? 0 : 9);
     pig.ang += (clamp(pig.vy / 1000, -0.45, 0.55) - pig.ang) * Math.min(1, dt * 12);
     camX = pig.x - PIG_SX;
+    camStep(dt);
 
     for (const o of objs) { const h = HAZARDS[o.t]; if (h.update) h.update(o, dt); }
 
     if (keys.boost && Math.random() < dt * 60) particles.push({ x: pig.x - 30, y: pig.y + rand(-18, 18), vx: -300, vy: 0, life: 0.25, max: 0.25, size: 2, col: 'rgba(255,255,255,0.8)', g: 0, streak: rand(30, 70) });
-    if (pig.ground && Math.random() < dt * 25) particles.push({ x: pig.x - 10, y: GROUND - 4, vx: rand(-120, -40), vy: rand(-80, -20), life: 0.4, max: 0.4, size: rand(3, 5), col: 'rgba(140,100,60,0.7)', g: 200 });
+    if (pig.ground && Math.random() < dt * 25) particles.push({ x: pig.x - 10, y: pig.y + 18, vx: rand(-120, -40), vy: rand(-80, -20), life: 0.4, max: 0.4, size: rand(3, 5), col: 'rgba(140,100,60,0.7)', g: 200 });
 
     collect();
     const hit = pigHit();
@@ -149,16 +160,19 @@ function update(dt) {
     deadT += dt;
     if (bacon) {
       bacon.vy += 1500 * dt; bacon.x += bacon.vx * dt; bacon.y += bacon.vy * dt; bacon.rot += bacon.vr * dt;
-      if (bacon.y > GROUND - 8) { bacon.y = GROUND - 8; bacon.vy *= -0.35; bacon.vx *= 0.6; bacon.vr *= 0.5; }
+      const bf = floorY(bacon.x, bacon.y - 30) - 8;
+      if (bacon.y > bf) { bacon.y = bf; bacon.vy *= -0.35; bacon.vx *= 0.6; bacon.vr *= 0.5; }
       if (Math.random() < dt * 14) particles.push({ x: bacon.x + rand(-20, 20), y: bacon.y - 8, vx: rand(-15, 15), vy: rand(-90, -50), life: 0.9, max: 0.9, size: rand(5, 9), col: 'rgba(240,240,240,0.5)', g: -20 });
     }
     if (lostHat) {
       lostHat.vy += 1300 * dt; lostHat.x += lostHat.vx * dt; lostHat.y += lostHat.vy * dt; lostHat.rot += lostHat.vr * dt;
-      if (lostHat.y > GROUND - 10) { lostHat.y = GROUND - 10; lostHat.vy *= -0.3; lostHat.vx *= 0.5; lostHat.vr *= 0.4; }
+      const hf = floorY(lostHat.x, lostHat.y - 30) - 10;
+      if (lostHat.y > hf) { lostHat.y = hf; lostHat.vy *= -0.3; lostHat.vx *= 0.5; lostHat.vr *= 0.4; }
     }
     if (deadT > 1.5) resetAttempt();
   } else if (state === 'win') {
     winT += dt;
+    camStep(dt);
     const tx = level.end + 190, ty = GROUND - 30;
     const p = Math.min(1, winT / 0.9);
     pig.x = pig.sx + (tx - pig.sx) * p;
@@ -196,7 +210,7 @@ function drawItems() {
 // The mud spa at the end of a level, where the other pigs wait. Bacon Bay's is a beach spa: a surfboard sign,
 // tiki torches, a palm, a beach umbrella, starfish on the sand and the pigs lounging in rubber rings.
 function drawMud(cam) {
-  const ex = level.end - cam, beach = level.area && level.area.id === 'beach';
+  const ex = level.end - cam, beach = level.area && level.area.id === 'beach', city = level.area && level.area.id === 'city';
   if (ex > W + 520 || ex < -620) return;
   const cheer = state === 'win' && splashed;
   const pigs = [[60, 1], [130, -1], [270, 1], [345, -1]].map(([px, f], i) =>
@@ -204,6 +218,7 @@ function drawMud(cam) {
   if (beach) drawBeachSpaBack(ex);
   // sign
   if (beach) drawSurfSign(ex - 94, GROUND);
+  else if (city) drawNeonSpaSign(ex - 94, GROUND);
   else {
     ctx.fillStyle = '#7b4a22'; ctx.fillRect(ex - 95, GROUND - 95, 8, 95);
     ctx.fillStyle = '#c8955a'; rrect(ex - 150, GROUND - 120, 112, 40, 8); ctx.fill();
@@ -220,6 +235,7 @@ function drawMud(cam) {
   const mg = ctx.createLinearGradient(0, GROUND - 40, 0, GROUND + 40);
   mg.addColorStop(0, '#7a5230'); mg.addColorStop(1, '#4a2f17');
   if (beach) { ctx.fillStyle = '#e9c98a'; ellipse(ex + 200, GROUND + 24, 256, 52); ctx.fill(); } // sandy rim
+  if (city) { ctx.save(); ctx.shadowColor = '#ff4fd8'; ctx.shadowBlur = 18; ctx.fillStyle = '#ff4fd8'; ellipse(ex + 200, GROUND + 22, 252, 50); ctx.fill(); ctx.restore(); } // neon rim
   ctx.fillStyle = mg; ellipse(ex + 200, GROUND + 20, 245, 46); ctx.fill();
   ctx.fillStyle = 'rgba(255,255,255,0.18)'; ellipse(ex + 150, GROUND - 6, 70, 7); ctx.fill(); ellipse(ex + 300, GROUND, 40, 5); ctx.fill();
   ctx.fillStyle = 'rgba(122,82,48,0.9)';
@@ -330,12 +346,13 @@ function drawHUD() {
 function render() {
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   if (state === 'map' || state === 'area') { drawOverworld(); if (shopOpen) drawPreview(); syncHudButtons(); return; }
-  const th = THEMES[state === 'menu' ? Math.floor(menuCam / 3000) % THEMES.length : level.theme];
+  const vert = state !== 'menu' && level.vert;
+  const th = vert ? CITY_THEME : THEMES[state === 'menu' ? Math.floor(menuCam / 3000) % THEMES.length : level.theme];
   const cam = state === 'menu' ? menuCam : camX;
   ctx.save();
   if (shake > 0) ctx.translate(rand(-shake, shake), rand(-shake, shake));
-  drawBackground(cam, th);
-  drawGround(cam, th);
+  if (vert) { drawCityBackground(cam); ctx.translate(0, -camY); drawVertWorld(); }
+  else { drawBackground(cam, th); drawGround(cam, th); }
 
   if (state === 'menu') {
     drawTrail(menuTrail.list, 0);
@@ -344,7 +361,7 @@ function render() {
     drawMud(camX);
     for (const back of [true, false]) for (const o of objs) { // 'back' hazards (scenery like palm trees) first
       const r = o.reach || 0;
-      if (!HAZARDS[o.t].back !== !back || o.x + (o.w || 60) + r < camX - 80 || o.x - r > camX + W + 80) continue;
+      if (HAZARDS[o.t].under || !HAZARDS[o.t].back !== !back || o.x + (o.w || 60) + r < camX - 80 || o.x - r > camX + W + 80) continue;
       HAZARDS[o.t].draw(o);
     }
     drawItems();
@@ -362,4 +379,14 @@ function render() {
   if (state !== 'menu') drawHUD();
   if (shopOpen) drawPreview();
   syncHudButtons();
+}
+
+// Pork-topia's spa sign: a neon box on a pole
+function drawNeonSpaSign(x, y) {
+  ctx.fillStyle = '#2b2347'; ctx.fillRect(x - 4, y - 110, 8, 110);
+  ctx.fillStyle = '#120a26'; rrect(x - 66, y - 150, 132, 46, 10); ctx.fill();
+  ctx.save(); ctx.shadowColor = '#ff4fd8'; ctx.shadowBlur = 16; ctx.strokeStyle = '#ff4fd8'; ctx.lineWidth = 4;
+  rrect(x - 66, y - 150, 132, 46, 10); ctx.stroke(); ctx.restore();
+  const on = Math.sin(clock * 6) > -0.85;
+  text('MUD SPA', x, y - 127, 22, on ? '#38f0ff' : '#1d6f99', 'center', '#120a26');
 }

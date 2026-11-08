@@ -129,7 +129,9 @@ const standalone = matchMedia('(display-mode: fullscreen), (display-mode: standa
 const fsEnabled = !!(document.fullscreenEnabled || document.webkitFullscreenEnabled);
 document.body.classList.toggle('is-touch', isTouch);
 document.body.classList.toggle('is-ios', isIOS && !standalone);
-document.body.classList.toggle('no-fs', !fsEnabled || !!standalone);
+// iPhone browsers have no fullscreen at all; there the button explains Add to Home Screen instead (#iosFs)
+const iosNoFs = isIOS && !fsEnabled && !standalone;
+document.body.classList.toggle('no-fs', (!fsEnabled && !iosNoFs) || !!standalone);
 const fsElement = () => document.fullscreenElement || document.webkitFullscreenElement;
 function enterFullscreen() {
   if (!fsEnabled || fsElement()) return;
@@ -143,7 +145,12 @@ function toggleFullscreen() {
   if (fsElement()) (document.exitFullscreen || document.webkitExitFullscreen).call(document);
   else enterFullscreen();
 }
-document.querySelectorAll('.fsToggle').forEach(b => b.addEventListener('click', () => { blurAll(); autoFsTried = true; toggleFullscreen(); }));
+document.querySelectorAll('.fsToggle').forEach(b => b.addEventListener('click', () => {
+  blurAll(); autoFsTried = true;
+  if (iosNoFs) { if (state === 'playing') togglePause(); $('iosFs').classList.remove('hidden'); return; }
+  toggleFullscreen();
+}));
+$('iosFsClose').onclick = () => { blurAll(); $('iosFs').classList.add('hidden'); };
 function setTouch() { if (!isTouch) { isTouch = true; document.body.classList.add('is-touch'); } }
 
 let hudShown = null;
@@ -268,7 +275,7 @@ requestAnimationFrame(frame);
 // Exposed for debugging and automated play-testing in the console
 window.__pig = {
   get state() { return state; }, get pig() { return pig; }, get items() { return items; }, get objs() { return objs; },
-  get save() { return save; }, get music() { return music; }, startLevel, showMap, LEVELS: ALL_LEVELS, AREAS, HATS, WINGS, FX, keys, update, render, openShop,
+  get save() { return save; }, get music() { return music; }, get camY() { return camY; }, set hitboxes(v) { showHitboxes = v; }, startLevel, showMap, LEVELS: ALL_LEVELS, AREAS, HATS, WINGS, FX, keys, update, render, openShop,
   // Automated play-testing: freezes save data (coins/eggs/bests) and sound until switched off
   testMode(on) {
     if (on && !noPersist) testSave = JSON.stringify(save);
@@ -326,3 +333,6 @@ window.__pig = {
     d.got.forEach((g, i) => { items[i].got = g; });
   },
 };
+
+// For testing: index.html?level=city-3 jumps straight into that level, even if it's locked (nothing is saved)
+{ const id = new URLSearchParams(location.search).get('level'); if (id && LEVEL_BY_ID[id]) { noPersist = true; startLevel(id); } }

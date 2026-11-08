@@ -15,7 +15,7 @@ A browser game where you play a flying pig. Dodge spikes, flying frying pans and
 | **M** | Volume slider (menu or pause) | Mute, or drag the slider to set the volume |
 | **F** | Full screen button | Full screen |
 
-On phones the game goes full screen and locks to landscape when you start a level (Android/Chrome). iPhone Safari doesn't allow web pages to go full screen, so on iPhone use Share → **Add to Home Screen** and launch it from there.
+On phones the game goes full screen and locks to landscape when you start a level (Android/Chrome). iPhone browsers don't allow web pages to go full screen, so on iPhone the full screen button explains how to use Share → **Add to Home Screen** and launch it from there (it then opens full screen, like an app).
 
 ## Snout Island
 
@@ -27,7 +27,7 @@ Each area is a set of about 6 levels with its own theme, so new areas can be add
 | --- | --- | --- |
 | 🐷 **Hamlet Farms** | Left cheek | 6 levels (the originals) |
 | 🏖️ **Bacon Bay** | The chin | 6 levels. Needs Hamlet Farms cleared and 12 of its golden eggs |
-| 🌃 **Pork-topia 2099** | Right cheek | Coming soon |
+| 🌃 **Pork-topia 2099** | Right cheek | 6 levels. Needs Bacon Bay cleared and 12 of its golden eggs |
 | 🏔️ **Mount Snoutmore** | The ears | Coming soon |
 | ☁️ **Hog Heaven** | Floating in the sky | Coming soon |
 
@@ -58,6 +58,29 @@ The first area where **boost** matters. Watch for the "HOLD SHIFT / HOLD ⚡" si
 5. **Shell-fish Behavior** (sunset): a bit of everything
 6. **The Big Kahuna** (moonlit): long tidal waves with giant crabs inside them
 
+### Pork-topia 2099
+
+A neon city with **three planes**: the **skytops** above the rooftops, the **street**, and the grimy **undercity**
+under it. The first three levels teach one plane each; from level 4 they're all open and joined by holes in the road
+(each with an ENTRANCE gate), glass sky decks you can fly up through, and tunnels through the towers.
+
+- 🏍️ **Corpo Pig Enforcer** chases you on a hoverbike along the street: boost away, or leave the street. Later he's
+  back in a hovercar that follows you anywhere, so only boost loses him.
+- 🤖 **Drones** and **gunships** guard the skytops. Drones flash and charge; gunships line up a sight line, blink,
+  then fire a laser straight ahead.
+- 🚇 **The metro** roars along the undercity tracks: a horn and a headlight glow warn you first.
+- 🪧 **Billboards** in the sky (Sky Living hangs from the very top), **rails** you can grind for a boost, and every
+  plane slopes gently into the street before the neon mud spa.
+
+1. **Neon Arrival**: street only, with tower tunnels and your first Enforcer chase
+2. **Underbelly**: undercity only, with hanging buildings and the metro
+3. **Skytops**: above the smog, with drones, gunships and billboards
+4. **Three-Way Junction**: all three planes open, gently
+5. **Rush Hour**: busier, with the hovercar chase
+6. **Pork-topia Prime**: the finale, everything at once
+
+The rules these levels follow are in [docs/LEVEL_DESIGN.md](docs/LEVEL_DESIGN.md).
+
 ## Golden eggs, coins and the shop
 
 - Every level hides **3 golden eggs**, usually somewhere dangerous. An egg only counts once you finish the level, but you don't have to get all three in the same run. Each new egg pays a 25-coin bonus.
@@ -67,7 +90,9 @@ The first area where **boost** matters. Watch for the "HOLD SHIFT / HOLD ⚡" si
 
 ## Running locally
 
-Plain HTML, CSS and JavaScript with no build step. Open `index.html` in a browser.
+Plain HTML, CSS and JavaScript with no build step. Run `python tools/serve.py` (a dev server that turns off browser caching, so edits always show up) and open http://localhost:8123.
+
+To jump straight into any level for testing (even a locked one; nothing is saved), add `?level=<id>`, e.g. http://localhost:8123/?level=city-3. The rules for building Pork-topia's levels are in [docs/LEVEL_DESIGN.md](docs/LEVEL_DESIGN.md).
 
 ## How the code is laid out
 

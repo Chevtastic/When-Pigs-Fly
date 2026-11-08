@@ -156,6 +156,11 @@ kbd {
 
 .hint { margin: 10px 0 0; animation: pulse 1.2s ease-in-out infinite; }
 @keyframes pulse { 50% { opacity: 0.4; } }
+.iosPanel { max-width: min(520px, 96%); }
+.iosPanel ol { text-align: left; margin: 8px 0; padding-left: 22px; font-family: system-ui, sans-serif; font-weight: 600; font-size: 15px; line-height: 1.45; }
+.iosPanel p { font-family: system-ui, sans-serif; font-size: 14px; margin: 6px 0; }
+.iosPanel .small { font-size: 12px; opacity: 0.75; }
+.shareIcon { display: inline-block; border: 2px solid currentColor; border-radius: 4px; padding: 0 4px; font-size: 12px; line-height: 16px; }
 .iosTip { display: none; margin: 8px 0 0; font-size: 12px; font-family: system-ui, sans-serif; font-weight: 600; opacity: 0.8; }
 
 .btns { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 12px; }

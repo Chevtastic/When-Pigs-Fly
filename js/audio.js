@@ -54,6 +54,10 @@ const sfx = {
   clack() { tone(1250, 900, 0.035, 'square', 0.035); tone(1500, 1050, 0.04, 'square', 0.035, 0.06); }, // crab shimmy
   swell() { noise(1.2, 0.08, 500, 'lowpass'); },                                     // a tidal wave starts rolling
   crash() { noise(0.6, 0.16, 1400, 'lowpass'); noise(0.35, 0.05, 3000, 'highpass', 0.05); }, // ...and is right behind you
+  laser() { tone(1800, 200, 0.28, 'sawtooth', 0.06); noise(0.2, 0.06, 2500, 'highpass'); },
+  horn() { tone(220, 210, 0.5, 'sawtooth', 0.05); tone(277, 262, 0.5, 'sawtooth', 0.04); },
+  lock() { [0, 0.12, 0.24].forEach(d => tone(1400, 1400, 0.07, 'square', 0.04, d)); }, // a drone locks on
+  siren(hi, v = 1) { tone(hi ? 880 : 620, hi ? 860 : 600, 0.38, 'square', 0.03 * v); }, // the Enforcer's wee-woo
   coin() { tone(1320, 1320, 0.05, 'square', 0.035); tone(1760, 1760, 0.09, 'square', 0.035, 0.05); },
   egg() { [784, 988, 1175, 1568].forEach((f, i) => tone(f, f * 1.01, 0.12, 'triangle', 0.08, i * 0.07)); },
   buy() { tone(880, 880, 0.06, 'square', 0.05); tone(1320, 1320, 0.06, 'square', 0.05, 0.07); tone(1760, 1760, 0.14, 'square', 0.05, 0.14); oinkLite(0.3); },

@@ -12,6 +12,7 @@
   <meta name="apple-mobile-web-app-title" content="Pigs Fly">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Lilita+One&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
@@ -164,6 +165,21 @@
       </div>
     </div>
 
+    <!-- iPhone: browsers there can't go full screen, so the full-screen buttons open this instead -->
+    <div id="iosFs" class="overlay hidden">
+      <div class="panel iosPanel">
+        <h2>Full screen on iPhone</h2>
+        <p>iPhone browsers don't let websites go full screen. Add the game to your Home Screen instead and it opens full screen, like an app:</p>
+        <ol>
+          <li>Tap <b>Share</b> <span class="shareIcon">⬆</span> (Safari: bottom bar · Chrome: top right).</li>
+          <li>Scroll down and tap <b>Add to Home Screen</b>.</li>
+          <li>Open <b>Pigs Fly</b> from your Home Screen and turn your phone sideways.</li>
+        </ol>
+        <p class="small">The Home Screen version keeps its own save, separate from this browser.</p>
+        <button id="iosFsClose" class="primary">Got it</button>
+      </div>
+    </div>
+
   </div>
   <div id="rotate" class="overlay">
     <div class="panel">
@@ -181,8 +197,11 @@
   <script src="js/hazards.js"></script>
   <script src="js/hazards/farm.js"></script>
   <script src="js/hazards/beach.js"></script>
+  <script src="js/vertical.js"></script>
+  <script src="js/hazards/city.js"></script>
   <script src="js/areas/farm.js"></script>
   <script src="js/areas/beach.js"></script>
+  <script src="js/areas/city.js"></script>
   <script src="js/world.js"></script>
   <script src="js/cosmetics.js"></script>
   <script src="js/save.js"></script>

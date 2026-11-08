@@ -1,7 +1,7 @@
 {
   "name": "When Pigs Fly",
   "short_name": "Pigs Fly",
-  "description": "Fly a pig past spikes, frying pans and farmers to reach the mud spa.",
+  "description": "Fly a pig through farms, beaches and a neon city to reach the mud spa.",
   "start_url": "./",
   "scope": "./",
   "display": "fullscreen",
@@ -9,6 +9,17 @@
   "background_color": "#1b1430",
   "theme_color": "#1b1430",
   "icons": [
-    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
   ]
 }
