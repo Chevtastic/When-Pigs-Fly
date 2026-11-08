@@ -70,7 +70,9 @@ under it. The first three levels teach one plane each; from level 4 they're all 
   then fire a laser straight ahead.
 - 🚇 **The metro** roars along the undercity tracks: a horn and a headlight glow warn you first.
 - 🪧 **Billboards** in the sky (Sky Living hangs from the very top), **rails** you can grind for a boost, and every
-  plane slopes gently into the street before the neon mud spa.
+  plane slopes gently into the neon mud spa, which sits where the next level starts (level 1 ends down in the
+  undercity, level 2 up on a sky pad).
+- Its own music: *Porktopia 2099*, *Never Touch the Ground* and *Stay Up*.
 
 1. **Neon Arrival**: street only, with tower tunnels and your first Enforcer chase
 2. **Underbelly**: undercity only, with hanging buildings and the metro

@@ -20,10 +20,14 @@
 //   rail(x0, y0, x1, y1)               neon boost rail (optional): drop onto it from above and you grind along it,
 //                                      faster. Fly to hop off. It never grabs you from below or from the ground.
 //   arrow(x, y, dir, label)            holo sign pointing at a path: dir = 'up' | 'down' | 'right'
-//   ramp(x0, y0, x1, y1)               a sloped FLOOR that never kills: anything below the line is solid and just
-//                                      pushes the pig up along it (use it to lift the undercity up to the street)
-//   ceilramp(x0, y0, x1, y1)           a sloped CEILING that never kills: pushes the pig down along it (use it to
-//                                      bring the sky back down to the street)
+//   ramp(x0, y0, x1, y1, style)        a sloped FLOOR that never kills: anything below the line is solid and just
+//                                      pushes the pig up along it (lift the undercity up to the street, or the street
+//                                      up into the sky)
+//   ceilramp(x0, y0, x1, y1, style)    a sloped CEILING that never kills: pushes the pig down along it (bring the sky
+//                                      down to the street, or the street down into the undercity)
+//                                      style: 'rubble' (girders and dirt, for the undercity) or 'neon' (a lit skyway).
+//                                      Defaults: ramp = 'rubble', ceilramp = 'neon'.
+//   block(x, w, y, h, 'pad')           a floating sky pad (a landing platform with thrusters), e.g. under a sky spa
 let camY = 0, showHitboxes = false;
 let geo = { solids: [], subways: [], holes: [], rails: [], ramps: [] };
 const SLAB = 70;            // street thickness above a subway
@@ -43,8 +47,8 @@ defineBuild('hole', (b, x, w = HOLE_W, down = true, up = true, trail = true) => 
   if (trail) for (let i = 0; i < 6; i++) { const t = i / 5; b.item({ t: 'coin', x: x - 120 + t * (w * 0.5 + 120), y: GROUND - 90 + t * t * (SLAB + 230) }); }
 });
 defineBuild('rail', (b, x0, y0, x1, y1) => { const r = { t: 'rail', x: x0, w: x1 - x0, x0, y0, x1, y1 }; geoOf(b).rails.push(r); b.add(r); });
-defineBuild('ramp', (b, x0, y0, x1, y1) => geoOf(b).ramps.push({ x0, y0, x1, y1, ceil: false }));
-defineBuild('ceilramp', (b, x0, y0, x1, y1) => geoOf(b).ramps.push({ x0, y0, x1, y1, ceil: true }));
+defineBuild('ramp', (b, x0, y0, x1, y1, style = 'rubble') => geoOf(b).ramps.push({ x0, y0, x1, y1, ceil: false, style }));
+defineBuild('ceilramp', (b, x0, y0, x1, y1, style = 'neon') => geoOf(b).ramps.push({ x0, y0, x1, y1, ceil: true, style }));
 defineBuild('arrow', (b, x, y, dir = 'up', label = '') => b.add({ t: 'arrow', x: x - 80, w: 160, cx: x, y, dir, label }));
 
 // Turns the builder's geometry into the solids the pig collides with: the street (solid earth, or a thin slab
@@ -140,19 +144,20 @@ function drawRamp(r) {
   const a = r.x0 - camX, c = r.x1 - camX, far = r.ceil ? level.top - 900 : level.bottom + 500;
   ctx.beginPath(); ctx.moveTo(a, r.y0); ctx.lineTo(c, r.y1); ctx.lineTo(c, far); ctx.lineTo(a, far); ctx.closePath();
   ctx.save(); ctx.clip();
-  if (r.ceil) { // a slanted neon megastructure leaning down toward the street, with rows of lit windows
-    ctx.fillStyle = '#2a1f55'; ctx.fillRect(a, far - 10, c - a, 3000);
+  const top = Math.min(r.y0, r.y1, far), span = Math.abs(far - Math.max(r.y0, r.y1)) + Math.abs(r.y1 - r.y0) + 40;
+  if (r.style === 'neon') { // a slanted neon megastructure / skyway, with rows of lit windows
+    ctx.fillStyle = '#2a1f55'; ctx.fillRect(a, top - 10, c - a, span + 20);
     ctx.fillStyle = 'rgba(0,229,255,0.35)';
     for (let wy = Math.floor((camY - 20) / 26) * 26; wy < camY + H; wy += 26) for (let wx = Math.ceil(r.x0 / 22) * 22; wx < r.x1; wx += 22)
       if (hash(wx * 1.7 + wy) > 0.55) ctx.fillRect(wx - camX, wy, 9, 11);
   } else { // a rubble-and-girder slope climbing out of the undercity
-    ctx.fillStyle = '#4a3220'; ctx.fillRect(a, Math.min(r.y0, r.y1) - 10, c - a, 3000);
+    ctx.fillStyle = '#4a3220'; ctx.fillRect(a, top - 10, c - a, span + 20);
     ctx.strokeStyle = 'rgba(30,18,8,0.55)'; ctx.lineWidth = 6;
-    for (let gx = Math.ceil(r.x0 / 90) * 90; gx < r.x1 + 600; gx += 90) line(gx - camX, Math.min(r.y0, r.y1), gx - camX - 400, Math.max(r.y0, r.y1) + 400);
+    for (let gx = Math.ceil(r.x0 / 90) * 90; gx < r.x1 + 1200; gx += 90) line(gx - camX, top, gx - camX - span, top + span);
   }
   ctx.restore();
   // the edge: a glowing guide strip with chevrons running along it toward the street
-  const col = r.ceil ? '#ff4fd8' : '#ffd84a';
+  const col = r.style === 'neon' ? '#ff4fd8' : '#ffd84a';
   ctx.save(); ctx.lineCap = 'round'; ctx.shadowColor = col; ctx.shadowBlur = 14;
   ctx.strokeStyle = col; ctx.lineWidth = 5; line(a, r.y0, c, r.y1); ctx.restore();
   const len = Math.hypot(r.x1 - r.x0, r.y1 - r.y0), ang = Math.atan2(r.y1 - r.y0, r.x1 - r.x0);
@@ -168,8 +173,9 @@ function drawRamp(r) {
 // under it (or the floor just ahead) or far above the ceiling over it.
 function camStep(dt) {
   if (!level.vert) { camY = 0; return; }
+  const top = level.top ?? 0, floorView = (level.bottom ?? GROUND) + 70 - H;
   let want;
-  if (state === 'win') want = 0;
+  if (state === 'win') want = clamp((level.spaY ?? GROUND) - GROUND, top, floorView); // frame the mud spa like the street
   else {
     const lead = clamp(pig.vy * 0.3, -150, 150), sy = pig.y + lead - camY;
     want = sy < 170 ? pig.y + lead - 170 : sy > 380 ? pig.y + lead - 380 : camY;
@@ -179,10 +185,12 @@ function camStep(dt) {
     const below = Math.max(surfaceBelow(pig.x, pig.y), wall ? 0 : surfaceBelow(pig.x + 180, pig.y));
     // something tall hanging in the sky (Sky Living) on screen: rise to show all of it, keeping the pig in view
     for (const o of objs) if (o.camTop != null && o.x < camX + W && o.x + o.w > camX && pig.y < 0) want = Math.max(Math.min(want, o.camTop), pig.y - 420);
-    const lo = surfaceAbove(pig.x, pig.y) - 40, hi = below + 70 - H;
+    // never look above the highest point the pig can reach (the level's ceiling); under a solid, peek 40px above it
+    const above = surfaceAbove(pig.x, pig.y), lo = above <= top ? top : above - 40, hi = below + 70 - H;
     want = lo > hi ? hi : clamp(want, lo, hi);
   }
   camY += (want - camY) * Math.min(1, dt * 6);
+  camY = Math.max(camY, top);
 }
 
 // ---------- Drawing ----------
@@ -268,6 +276,15 @@ function drawSolid(o) {
     ctx.fillStyle = '#7dff6a'; ctx.fillRect(x - 3, o.y - 3, o.w + 6, 6);
     ctx.fillStyle = 'rgba(125,255,106,0.55)'; for (let lx = Math.ceil(o.x / 28) * 28; lx < o.x + o.w - 10; lx += 28) ctx.fillRect(lx - camX, o.y + o.h - 3, 14, 3);
     ctx.fillStyle = 'rgba(125,255,106,0.35)'; for (let lx = Math.ceil(o.x / 90) * 90; lx < o.x + o.w; lx += 90) ctx.fillRect(lx - camX, o.y, 2, o.h);
+  } else if (o.kind === 'pad') { // a floating sky pad: deck, neon edge, hazard stripes and thrusters underneath
+    ctx.fillStyle = '#2b2347'; ctx.fillRect(x, o.y, o.w, o.h);
+    ctx.fillStyle = '#ffd84a'; for (let lx = Math.ceil(o.x / 40) * 40; lx < o.x + o.w - 20; lx += 40) { ctx.beginPath(); ctx.moveTo(lx - camX, o.y + o.h); ctx.lineTo(lx - camX + 14, o.y + 8); ctx.lineTo(lx - camX + 24, o.y + 8); ctx.lineTo(lx - camX + 10, o.y + o.h); ctx.closePath(); ctx.fill(); }
+    ctx.save(); ctx.shadowColor = '#00e5ff'; ctx.shadowBlur = 14; ctx.fillStyle = '#38f0ff'; ctx.fillRect(x, o.y - 2, o.w, 5); ctx.restore();
+    for (let tx = x + 60; tx < x + o.w - 30; tx += 160) {
+      ctx.fillStyle = '#5a4a8a'; ctx.fillRect(tx - 14, o.y + o.h, 28, 12);
+      const f = 22 + Math.sin(clock * 30 + tx) * 6;
+      ctx.fillStyle = 'rgba(0,229,255,0.7)'; ellipse(tx, o.y + o.h + 14 + f / 2, 9, f / 2 + 4); ctx.fill();
+    }
   } else { // billboard
     const col = NEON[(n + 1) % 4], on = Math.sin(clock * 9 + o.x) > -0.95;
     ctx.fillStyle = '#120a26'; ctx.fillRect(x, o.y, o.w, o.h);
