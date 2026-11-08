@@ -18,9 +18,10 @@ addArea({
   // ---------------------------------------------------------------------------------------------------------------
   // 1. STREET ONLY. A low ceiling (no sky, no undercity): hop the small and mid-size buildings, ride the tunnels
   // through the towers. The bike Enforcer shows up at the end; with nowhere else to go, BOOST is the escape.
+  // It ends by sloping down into the undercity, where the mud spa waits on the cavern floor (level 2 starts there).
   {
-    id: 'city-1', name: 'Neon Arrival', theme: 0, speed: 330, end: 9200,
-    vert: true, top: 0, bottom: GROUND,
+    id: 'city-1', name: 'Neon Arrival', theme: 0, speed: 330, end: 10300,
+    vert: true, top: 0, bottom: UNDER_FLOOR, spaY: UNDER_FLOOR,
     build() {
       const b = builder(this.speed);
       b.coins(300, 300, 6).bld('b_ramen', 800).arc(760, 260, 6, 60)
@@ -36,17 +37,20 @@ addArea({
        .enforcer(6900, 8600, 1.3)                                         // the bike Enforcer: BOOST!
        .bld('b_ramen', 7400).coins(7380, 260, 5).egg(7650, 260)          // egg past the ramen shop, mid-chase
        .bld('b_fox', 7900, GROUND, TUNNEL).coins(7920, 400, 10)
-       .bld('b_nexus', 8650).coins(8600, 260, 5);
+      // the ending: the street drops away into the undercity and a girder slope eases you down to the spa
+       .subway(8900, 11800).hole(9000, 2800, false, false, false)
+       .ceilramp(8950, 0, 9950, UNDER_FLOOR - 250, 'rubble').coins(9000, 120, 9, 112, 100);
       return b;
     },
   },
 
   // ---------------------------------------------------------------------------------------------------------------
   // 2. UNDERCITY ONLY. You start down in the cavern and stay there: weave over the standing buildings and under the
-  // hanging ones, dodge the metro, and ride the slope up and out to the mud spa at the end.
+  // hanging ones, dodge the metro. At the end a slope lifts you out to the street and a neon skyway carries you on up
+  // to the mud spa on a sky pad (level 3 starts up in the skytops).
   {
-    id: 'city-2', name: 'Underbelly', theme: 0, speed: 335, end: 10400,
-    vert: true, top: -600, bottom: UNDER_FLOOR, startY: GROUND + SLAB + 250,
+    id: 'city-2', name: 'Underbelly', theme: 0, speed: 335, end: 11000,
+    vert: true, top: -600, bottom: UNDER_FLOOR, startY: GROUND + SLAB + 250, spaY: -230,
     build() {
       const b = builder(this.speed), F = UNDER_FLOOR;
       b.subway(-800, 9900).hole(9200, 700, false, true, false)
@@ -66,7 +70,9 @@ addArea({
        .coins(7300, 1150, 5).coins(7790, 760, 5)
        .hang('h_market', 8350).coins(8400, 1150, 5).egg(8820, 1230)       // duck under, then the egg on the floor
        .metro(-800, 8600, 6.5)
-       .ramp(9000, F, 9860, 430).coins(9100, 1150, 8, -97, 100);          // the way up and out
+       .ramp(9000, F, 9860, 430).coins(9100, 1150, 8, -97, 100)           // the way up and out...
+       .ramp(9950, GROUND, 10910, -232, 'neon').coins(10000, 400, 9, -74, 100) // ...and on up the skyway
+       .block(10900, 1000, -230, 40, 'pad');                                // the sky pad the spa sits on
       return b;
     },
   },

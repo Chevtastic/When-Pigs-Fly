@@ -47,7 +47,7 @@ function resetAttempt() {
   items = pruneCoins(b.items);
   pig = newPig();
   if (level.startY != null) pig.y = level.startY; // e.g. start down in the undercity or up in the sky
-  camX = pig.x - PIG_SX; camY = level.startY != null ? clamp(level.startY - 300, (level.top ?? 0) - 40, (level.bottom ?? GROUND) + 70 - H) : 0;
+  camX = pig.x - PIG_SX; camY = level.startY != null ? clamp(level.startY - 300, level.top ?? 0, (level.bottom ?? GROUND) + 70 - H) : 0;
   levelT = 0; particles = []; bacon = null; lostHat = null; shake = 0; splashed = false;
   trail.list = []; trail.acc = 0;
   runCoins = 0; runEggs = 0;
@@ -173,7 +173,7 @@ function update(dt) {
   } else if (state === 'win') {
     winT += dt;
     camStep(dt);
-    const tx = level.end + 190, ty = GROUND - 30;
+    const spa = level.spaY ?? GROUND, tx = level.end + 190, ty = spa - 30;
     const p = Math.min(1, winT / 0.9);
     pig.x = pig.sx + (tx - pig.sx) * p;
     pig.y = pig.sy + (ty - pig.sy) * p - Math.sin(Math.PI * p) * 120;
@@ -185,13 +185,13 @@ function update(dt) {
       const CONF = ['#ff6f9c', '#ffe14d', '#4cd964', '#3fb6e8', '#b57bff', '#ff8a1e'];
       for (let i = 0; i < 70; i++) {
         const side = i % 2 ? 1 : -1;
-        particles.push({ x: camX + W / 2 + side * rand(380, 480), y: GROUND + 10, vx: -side * rand(120, 380), vy: rand(-760, -480), life: rand(1.6, 2.4), max: 2.4,
+        particles.push({ x: camX + W / 2 + side * rand(380, 480), y: spa + 10, vx: -side * rand(120, 380), vy: rand(-760, -480), life: rand(1.6, 2.4), max: 2.4,
           size: rand(5, 9), col: CONF[i % CONF.length], g: 560, conf: true, rot: rand(0, 6), vr: rand(-12, 12) });
       }
-      particles.push({ x: camX + W / 2, y: 150, vx: 0, vy: -12, life: 1.5, max: 1.5, size: 54, col: '#ffe14d', g: 0, txt: 'LEVEL CLEAR!', pop: true });
+      particles.push({ x: camX + W / 2, y: camY + 150, vx: 0, vy: -12, life: 1.5, max: 1.5, size: 54, col: '#ffe14d', g: 0, txt: 'LEVEL CLEAR!', pop: true });
       sfx.cheer();
     }
-    if (splashed && Math.random() < dt * 8) particles.push({ x: level.end + rand(40, 360), y: GROUND - 50, vx: rand(-20, 20), vy: rand(-70, -40), life: 1.6, max: 1.6, size: 18, col: '#ff6f9c', g: 0, heart: true });
+    if (splashed && Math.random() < dt * 8) particles.push({ x: level.end + rand(40, 360), y: spa - 50, vx: rand(-20, 20), vy: rand(-70, -40), life: 1.6, max: 1.6, size: 18, col: '#ff6f9c', g: 0, heart: true });
     if (winT > 1.6 && $('win').classList.contains('hidden') && !shopOpen) showWin();
   }
 
@@ -209,7 +209,14 @@ function drawItems() {
 }
 // The mud spa at the end of a level, where the other pigs wait. Bacon Bay's is a beach spa: a surfboard sign,
 // tiki torches, a palm, a beach umbrella, starfish on the sand and the pigs lounging in rubber rings.
+// A level can put its spa at another height with spaY (e.g. down on the undercity floor, or on a sky pad), so it
+// ends where the next level starts. Everything below is drawn as if the spa were on the street, then moved there.
 function drawMud(cam) {
+  ctx.save(); ctx.translate(0, (level.spaY ?? GROUND) - GROUND);
+  drawMudOnStreet(cam);
+  ctx.restore();
+}
+function drawMudOnStreet(cam) {
   const ex = level.end - cam, beach = level.area && level.area.id === 'beach', city = level.area && level.area.id === 'city';
   if (ex > W + 520 || ex < -620) return;
   const cheer = state === 'win' && splashed;

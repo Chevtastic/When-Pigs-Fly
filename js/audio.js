@@ -88,6 +88,7 @@ function setSurf(v) {
 const PLAYLISTS = {
   default: ['assets/Music/Oink and Go.mp3', 'assets/Music/Sizzle and Soar.mp3'],
   beach: ['assets/Music/Bacon Bay.mp3', 'assets/Music/Coconut Cannonballs.mp3'],
+  city: ['assets/Music/Porktopia-2099.mp3', 'assets/Music/Never Touch the Ground.mp3', 'assets/Music/Stay Up.mp3'],
 };
 const music = { el: null, idx: 0, list: null };
 function musicList() {

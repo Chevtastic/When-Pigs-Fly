@@ -107,17 +107,30 @@ Hitboxes sit slightly inside the art so near misses are forgiven:
   including diving from the sky to the undercity floor (allow ~750 px after a hole to dive all the way down) and
   climbing back up (glass decks block falling, so plan around them).
 
-## 8. The ending funnels everyone to the mud spa
+## 8. The ending funnels everyone to the mud spa, where the next level starts
 
-No plane may end in a wall. About 1,000 px before the mud spa:
+**The spa sits on the plane the next level starts on**, so levels flow into each other. Set `spaY` on the level
+(the height the spa sits at; default is the street):
 
-- the undercity floor becomes a **floor ramp** (`ramp`) that lifts the pig up through the final wide opening
-- the sky gets a **ceiling ramp** (`ceilramp`) that slopes down and eases the pig back to the street, ending just
-  below the closing overpass
-- both ramps get coin lines along them
+| Next level starts in | This level ends with | `spaY` |
+| --- | --- | --- |
+| the street | undercity floor ramp up + sky ceiling ramp down to the street (the default) | `GROUND` |
+| the undercity | the street drops into a wide opening and a `ceilramp(..., 'rubble')` eases you down to the cavern floor | `UNDER_FLOOR` |
+| the skytops | a `ramp` up out of the undercity, then a `ramp(..., 'neon')` skyway up to a sky `pad` | the pad's top |
 
-Ramps never kill; they just push the pig along. Test the ending from every height (floor-hugging, mid-cavern,
-pinned to the top of the sky), with and without boost.
+No plane may end in a wall. About 1,000 px before the spa, every plane is funnelled with ramps:
+- **floor ramps** (`ramp`) lift the pig, **ceiling ramps** (`ceilramp`) push it down
+- style `'rubble'` (girders and dirt) for anything going into or out of the undercity, `'neon'` (a lit skyway) for
+  the sky
+- coin lines run along them, and they never kill
+
+Test the ending from every height (floor-hugging, mid-cavern, pinned to the top of the sky), with and without boost.
+
+### Camera
+
+The camera never shows above the level's ceiling (`level.top`). A street-only level (`top: 0`) stays locked on the
+street, and the skytops never scroll past the top lane. Under a solid ceiling (the street slab, a building) it may
+peek 40 px above it so you can see what you're under.
 
 ## 9. New art checklist
 
