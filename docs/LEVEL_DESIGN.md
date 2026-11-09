@@ -26,10 +26,13 @@ of room around it).
 | --- | --- | --- |
 | **Sky** | above the rooftops, up to `level.top` | glass decks, billboards, drones, gunships, sky eggs |
 | **Street** | the road, `y = GROUND` | buildings, tower tunnels, the bike Enforcer, hole gates |
-| **Undercity** | a cavern under the street slab, down to `level.bottom` | standing + hanging undercity buildings, the metro, rails |
+| **Undercity** | a cavern under the street slab, down to `level.bottom` (`UNDER_FLOOR`) | standing + hanging undercity buildings, drones, gunships, the metro, rails |
 
 - Every plane must be playable **from the first drop to the end**. A player who picks one plane and stays there
   should be able to finish (the undercity runs under the whole level; the street always has tunnels through towers).
+- **The undercity is one screen tall**, like the street: the cavern under the 70 px slab is exactly as tall as the
+  street level (`GROUND`, 470 px), so down there the camera sits still and it plays like a classic level. Undercity
+  buildings are sized for that cavern (section 5).
 - The undercity has its own look: grimy and brown. The street and sky are neon cyberpunk.
 - Detailed art is only used for things you can hit. The background stays dark, simple silhouettes behind a haze,
   so scenery never gets mistaken for an obstacle.
@@ -66,12 +69,14 @@ sign underneath.
 
 | Hazard | Plane | Tell | Escape |
 | --- | --- | --- | --- |
-| Drone | sky | eye flashes red + "!" + three beeps (0.6 s), then charges | change height; it ignores you below the sky |
-| Gunship | sky | drifts toward your height with a dashed sight line, **stops and blinks solid for 0.7 s**, then fires straight ahead | change height while it blinks |
+| Drone | sky or undercity | eye flashes red + "!" + three beeps (0.6 s), then charges | change height; it ignores you off its own plane |
+| Gunship | sky or undercity | drifts toward your height with a dashed sight line, **stops and blinks solid for 0.7 s**, then fires straight ahead | change height while it blinks |
 | Bike Enforcer | street only | red/blue edge flash "BOOST or ▲▼" + siren | BOOST, or leave the street for 0.8 s |
 | Hovercar Enforcer | any | red/blue edge flash "BOOST" + siren | BOOST only |
-| Metro | undercity | horn + flashing light + headlight glow at the right edge (1.2 s) | fly above the train (~175 px tall) |
+| Metro | undercity | horn + flashing light + headlight glow at the right edge (1.2 s) | fly above the train (~120 px tall) |
 
+- Drones and gunships hunt on the plane they're placed in: give them a `y` under the street to put them in the
+  undercity. Put them in open stretches between buildings (not right under a hole), so there's room to dodge.
 - A chase (Enforcer) should start **after** a hole exit, not just before one, so nobody has to boost through a hole.
 - The metro runs in front of undercity buildings on the tracks; stop its range (`metro(x0, x1)`) before the exit ramp.
 
@@ -80,7 +85,7 @@ sign underneath.
 Each asset has one in-game size, set once in a table, and keeps it everywhere it's reused:
 
 - Buildings: `BUILDINGS` in `js/hazards/city.js` (small shops ~170–180, mid-size 270–380, towers 620–820,
-  undercity 430–460, hanging 300–420).
+  undercity 265–285, hanging 185–260; metro 470 × 121).
 - Billboards: `ADS` (Sky Living 560, Cortexa 470, HogFuel 480 wide).
 - Drones, gunship, Enforcers, metro, signs: constants next to each hazard.
 
@@ -104,7 +109,7 @@ Hitboxes sit slightly inside the art so near misses are forgiven:
 
 - Three per level, usually one per plane.
 - Check that **all three can be collected in one run**: from each egg there must be time to reach the next one,
-  including diving from the sky to the undercity floor (allow ~750 px after a hole to dive all the way down) and
+  including diving from the sky to the undercity floor (allow ~500 px after a hole to dive all the way down) and
   climbing back up (glass decks block falling, so plan around them).
 
 ## 8. The ending funnels everyone to the mud spa, where the next level starts

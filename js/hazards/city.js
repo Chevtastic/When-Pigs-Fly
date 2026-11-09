@@ -13,12 +13,13 @@
 //                                  patrols the street: outrun him with BOOST, or shake him by flying up into the sky
 //                                  or down into the undercity. In the hovercar (car = true) he follows you anywhere,
 //                                  so only BOOST loses him.
-//   drone(x, y)                    a robot drone waiting in the sky. If you're up in the sky when you get near, its
-//                                  eye flashes, then it charges at you (steering a little). Below the sky it just hovers.
+//   drone(x, y)                    a robot drone waiting in the sky (or in the undercity, if y is under the street).
+//                                  If you're on its plane when you get near, its eye flashes, then it charges at you
+//                                  (steering a little). Off its plane it just hovers.
 //   ad(kind, x, y)                 a solid billboard in the sky: 'sky' (Sky Living) hangs on its chains from the very
 //                                  top of the map (y is ignored), forcing you to fly under it; 'cortexa' and 'hogfuel'
 //                                  float on thrusters with their top at y, anywhere in the sky.
-//   gunship(x, y)                  a sky robot with a laser: if you're in the sky it drifts toward your height with a
+//   gunship(x, y)                  a robot with a laser (sky or undercity): if you're on its plane it drifts toward your height with a
 //                                  sight line, stops, blinks, fires straight ahead, then flies on past.
 //   metro(x0, x1, every)           undercity trains along the tracks (see below)
 //   smog(x0, x1, y)                a glowing smog bank you can slide on, hiding the street below (sky-only levels)
@@ -43,12 +44,12 @@ const BUILDINGS = {
   b_corptower: { h: 740, ar: 467 / 708 },
   b_orion: { h: 820, ar: 309 / 757 },
   // the undercity
-  u_market: { h: 430, ar: 584 / 657 },
-  u_facade: { h: 460, ar: 596 / 652 },
+  u_market: { h: 265, ar: 584 / 657 },
+  u_facade: { h: 285, ar: 596 / 652 },
   // hanging from the undercity ceiling (hitbox follows their bottom edge)
-  h_platform: { h: 300, ar: 768 / 511, hang: true },
-  h_market: { h: 400, ar: 596 / 650, hang: true },
-  h_industrial: { h: 420, ar: 550 / 698, hang: true },
+  h_platform: { h: 185, ar: 768 / 511, hang: true },
+  h_market: { h: 245, ar: 596 / 650, hang: true },
+  h_industrial: { h: 260, ar: 550 / 698, hang: true },
 };
 for (const n in BUILDINGS) {
   BUILDINGS[n].w = Math.round(BUILDINGS[n].h * BUILDINGS[n].ar);
@@ -210,15 +211,17 @@ defineHazard('cop', {
 });
 
 
-// ---------- Robot drone (sky) ----------
+// ---------- Robot drone (sky or undercity) ----------
+// A drone (or gunship) hunts on the plane it's placed in: the sky, or the undercity if you put it under the street.
 const DRONE_W = 150, DRONE_H = 90, DRONE_R = 32;
-defineBuild('drone', (b, x, y) => b.add({ t: 'drone', x, w: DRONE_W, y, y0: y, st: 'idle', tell: 0 }));
+defineBuild('drone', (b, x, y) => b.add({ t: 'drone', x, w: DRONE_W, y, y0: y, under: y > GROUND + SLAB, st: 'idle', tell: 0 }));
 const inSky = () => pig.y < -20;
+const onPlane = o => o.under ? pig.y > GROUND + SLAB : inSky(); // is the pig on this robot's plane?
 defineHazard('drone', {
   update(o, dt) {
     if (o.st === 'idle') {
       o.y = o.y0 + Math.sin(clock * 2.2 + o.x) * 8;
-      if (inSky() && o.x > pig.x && o.x - pig.x < 820) { o.st = 'tell'; o.tell = 0.6; sfx.lock(); }
+      if (onPlane(o) && o.x > pig.x && o.x - pig.x < 820) { o.st = 'tell'; o.tell = 0.6; sfx.lock(); }
     } else if (o.st === 'tell') {
       o.tell -= dt; if (o.tell <= 0) o.st = 'charge';
     } else {
@@ -294,14 +297,14 @@ defineHazard('holesign', {
 // while before it fires. Just change height while it's blinking.
 const GUN_W = 180, GUN_H = 106, GUN_R = 34;
 const GUN_AIM = 1.3, GUN_LOCK = 0.7, GUN_FIRE = 0.18, GUN_PAUSE = 0.6, GUN_DRIFT = 110, GUN_CHARGE = 300;
-defineBuild('gunship', (b, x, y) => b.add({ t: 'gunship', x, w: GUN_W, reach: 1300, y, y0: y, st: 'idle', tt: 0 }));
+defineBuild('gunship', (b, x, y) => b.add({ t: 'gunship', x, w: GUN_W, reach: 1300, y, y0: y, under: y > GROUND + SLAB, st: 'idle', tt: 0 }));
 const muzzle = o => [o.x + GUN_W * 0.03, o.y + GUN_H * 0.02];
 defineHazard('gunship', {
   update(o, dt) {
     o.tt += dt;
     if (o.st === 'idle') {
       o.y = o.y0 + Math.sin(clock * 2 + o.x) * 8;
-      if (inSky() && o.x > pig.x + 260 && o.x - pig.x < 900) { o.st = 'aim'; o.tt = 0; sfx.lock(); }
+      if (onPlane(o) && o.x > pig.x + 260 && o.x - pig.x < 900) { o.st = 'aim'; o.tt = 0; sfx.lock(); }
     } else if (o.st === 'aim') {
       if (o.tt < GUN_AIM - GUN_LOCK) o.y += clamp(pig.y - o.y, -GUN_DRIFT * dt, GUN_DRIFT * dt); // drifts, then holds still
       if (o.tt >= GUN_AIM) { o.st = 'fire'; o.tt = 0; sfx.laser(); shake = Math.max(shake, 3); }
@@ -344,7 +347,7 @@ defineHazard('gunship', {
 // metro(x0, x1, every): while you're down in the undercity between x0 and x1, a train comes at you along the tracks
 // about every `every` seconds. Tell: a warning light and horn at the right edge, then it zooms through, riding on
 // the tracks in front of the undercity buildings.
-const METRO_W = 680, METRO_H = 175, METRO_SPEED = 1150, METRO_WARN = 1.2;
+const METRO_W = 470, METRO_H = 121, METRO_SPEED = 1150, METRO_WARN = 1.2;
 const METRO_RAIL = 27; // its wheels sit on the top rail, which is drawn this far below the floor line
 defineBuild('metro', (b, x0, x1, every = 7) => b.add({ t: 'metro', x: x0, w: x1 - x0, reach: 1e6, x0, x1, every, wait: every * 0.5, st: 'wait', tx: 0 }));
 defineHazard('metro', {
