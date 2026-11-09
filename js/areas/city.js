@@ -7,7 +7,7 @@
 //   1. street only   2. undercity only   3. skytops only   4. all three (gentle)   5. all three, busier   6. finale
 //
 // Play any level directly (nothing is saved) with  index.html?level=city-3
-const UNDER_FLOOR = GROUND + SLAB + 760; // the undercity floor
+const UNDER_FLOOR = GROUND + SLAB + GROUND; // the undercity floor: the cavern is as tall as the street level
 const TUNNEL = 150;                       // street tunnel height through the towers
 
 addArea({
@@ -39,38 +39,42 @@ addArea({
        .bld('b_fox', 7900, GROUND, TUNNEL).coins(7920, 400, 10)
       // the ending: the street drops away into the undercity and a girder slope eases you down to the spa
        .subway(8900, 11800).hole(9000, 2800, false, false, false)
-       .ceilramp(8950, 0, 9950, UNDER_FLOOR - 250, 'rubble').coins(9000, 120, 9, 112, 100);
+       .ceilramp(8950, 0, 9950, UNDER_FLOOR - 250, 'rubble').coins(9000, 140, 9, 76, 100);
       return b;
     },
   },
 
   // ---------------------------------------------------------------------------------------------------------------
   // 2. UNDERCITY ONLY. You start down in the cavern and stay there: weave over the standing buildings and under the
-  // hanging ones, dodge the metro. At the end a slope lifts you out to the street and a neon skyway carries you on up
+  // hanging ones, dodge the drones and the metro. At the end a slope lifts you out to the street and a neon skyway carries you on up
   // to the mud spa on a sky pad (level 3 starts up in the skytops).
   {
     id: 'city-2', name: 'Underbelly', theme: 0, speed: 335, end: 11000,
-    vert: true, top: -600, bottom: UNDER_FLOOR, startY: GROUND + SLAB + 250, spaY: -230,
+    vert: true, top: -600, bottom: UNDER_FLOOR, startY: GROUND + SLAB + 180, spaY: -230,
     build() {
       const b = builder(this.speed), F = UNDER_FLOOR;
       b.subway(-800, 9900).hole(9200, 700, false, true, false)
-       .coins(300, 800, 8)
-       .hang('h_platform', 900).coins(950, 1150, 6)                       // first hanging one: stay low
-       .bld('u_market', 1700, F).coins(1740, 760, 6)                       // first standing one: stay high
-       .rail(2250, 1250, 2650, 860).coins(2300, 1150, 3)                   // optional ride (drop onto it)
-       .hang('h_industrial', 2900).hang('h_market', 3300)                  // two hanging in a row
-       .coins(2950, 1180, 6).coins(3350, 1180, 6)
-       .coins(3750, 1000, 4).egg(4050, 1240)                               // egg on the tracks: mind the metro
-       .bld('u_facade', 4400, F).bld('u_market', 4900, F)                  // two standing in a row
-       .coins(4440, 740, 6).coins(4940, 760, 6)
-       .hang('h_platform', 5600).bld('u_facade', 6300, F)                  // S-curve
-       .coins(5650, 1100, 6).coins(6340, 740, 6)
-       .egg(6950, 590).coins(6800, 650, 3)                                 // egg right up under the street
-       .hang('h_industrial', 7250).bld('u_market', 7750, F)
-       .coins(7300, 1150, 5).coins(7790, 760, 5)
-       .hang('h_market', 8350).coins(8400, 1150, 5).egg(8820, 1230)       // duck under, then the egg on the floor
+       .coins(300, 701, 8)
+       .hang('h_platform', 800).coins(850, 917, 6)                        // first hanging one: stay low
+       .bld('u_market', 1350, F).coins(1370, 676, 5)                       // first standing one: stay high
+       .hang('h_industrial', 1800).coins(1810, 917, 4)
+       .bld('u_facade', 2250, F).coins(2270, 664, 5)
+       .drone(2950, 780).coins(2650, 780, 4)                               // first drone: change height when it flashes
+       .hang('h_industrial', 3350).hang('h_market', 3700)                  // two hanging in a row
+       .coins(3360, 936, 4).coins(3710, 917, 5)
+       .egg(4100, 973)                                                     // egg on the tracks: mind the metro
+       .bld('u_facade', 4400, F).bld('u_market', 4800, F)                  // two standing in a row
+       .coins(4420, 664, 6).coins(4820, 676, 5)
+       .hang('h_platform', 5300).bld('u_facade', 5850, F)                  // S-curve
+       .coins(5350, 886, 6).coins(5870, 664, 5)
+       .drone(6450, 900)
+       .egg(6950, 571).coins(6800, 608, 3)                                 // egg right up under the street
+       .hang('h_industrial', 7250).bld('u_market', 7700, F)
+       .coins(7260, 917, 4).coins(7720, 676, 5)
+       .drone(8150, 650)
+       .hang('h_market', 8450).coins(8470, 917, 5).egg(8820, 967)       // duck under, then the egg on the floor
        .metro(-800, 8600, 6.5)
-       .ramp(9000, F, 9860, 430).coins(9100, 1150, 8, -97, 100)           // the way up and out...
+       .ramp(9000, F, 9860, 430).coins(9100, 850, 8, -67, 100)           // the way up and out...
        .ramp(9950, GROUND, 10910, -232, 'neon').coins(10000, 400, 9, -74, 100) // ...and on up the skyway
        .block(10900, 1000, -230, 40, 'pad');                                // the sky pad the spa sits on
       return b;
@@ -118,18 +122,19 @@ addArea({
        .hole(9900, 700, false, true, false)
       // undercity
        .hang('h_platform', 1800).bld('u_facade', 2500, F)
-       .coins(1850, 1150, 6).coins(2540, 740, 6)
+       .coins(1850, 917, 6).coins(2540, 664, 6)
        .hang('h_market', 3300).bld('u_market', 3900, F)
-       .coins(3350, 1150, 5).coins(3940, 760, 6)
-       .egg(4750, 1230).coins(4900, 1150, 5)                               // undercity egg, low under the hole
+       .coins(3350, 917, 5).coins(3940, 676, 6)
+       .egg(4750, 967).coins(4900, 917, 5)                               // undercity egg, low under the hole
        .hang('h_industrial', 5200).bld('u_facade', 5800, F)
-       .coins(5250, 1180, 5).coins(5840, 740, 6)
+       .coins(5250, 936, 5).coins(5840, 664, 6)
        .hang('h_platform', 6800).bld('u_market', 7400, F)
-       .coins(6850, 1120, 6).coins(7440, 760, 6)
+       .coins(6850, 899, 6).coins(7440, 676, 6)
        .hang('h_market', 8400).bld('u_facade', 9000, F)
-       .coins(8450, 1150, 5).coins(9040, 740, 6)
+       .coins(8450, 917, 5).coins(9040, 664, 6)
+       .drone(2950, 900).drone(6300, 700).drone(8800, 850)                // drones down below too
        .metro(1300, 9300, 9)
-       .ramp(9750, F, 10560, 430).coins(9850, 1150, 8, -97, 100)
+       .ramp(9750, F, 10560, 430).coins(9850, 850, 8, -72, 100)
       // street
        .overpass(-800, 1100, 40)
        .coins(320, 300, 6).bld('b_ramen', 700).arc(660, 260, 6, 60)
@@ -167,21 +172,21 @@ addArea({
        .hole(1250).hole(2850).hole(4150).hole(6100).hole(7400).hole(9400)
        .hole(10180, 720, false, true, false)
       // undercity
-       .coins(1600, 800, 8)
+       .coins(1600, 701, 8)
        .hang('h_platform', 1900).hang('h_industrial', 2420)
-       .coins(1960, 1160, 6).coins(2460, 1160, 6)
+       .coins(1960, 923, 6).coins(2460, 923, 6)
        .bld('u_market', 3200, F).bld('u_facade', 3660, F)
-       .coins(3240, 760, 6).coins(3700, 740, 6)
-       .coins(4450, 900, 4, 40, 40).coins(4800, 1100, 4, 40, -40)
+       .coins(3240, 676, 6).coins(3700, 664, 6)
+       .bld('u_market', 4450, F).coins(4470, 676, 5)
        .hang('h_market', 4950).bld('u_facade', 5600, F)
-       .coins(5000, 1150, 6).coins(5640, 740, 6)
+       .coins(5000, 917, 6).coins(5640, 664, 6)
        .hang('h_industrial', 6450)
-       .coins(6500, 1100, 5).egg(6860, 1200)
-       .rail(7000, 1250, 7360, 640)
+       .coins(6500, 886, 5).egg(6860, 948)
+       .rail(7000, 979, 7360, 602)
        .bld('u_market', 7750, F).hang('h_platform', 8300).bld('u_facade', 8900, F)
-       .coins(7790, 760, 6).coins(8350, 1100, 6).coins(8940, 740, 6)
-       .hang('h_market', 9750).coins(9800, 1150, 6)
-       .ramp(10000, F, 10860, 430).coins(10100, 1150, 8, -97, 100)
+       .coins(7790, 676, 6).coins(8350, 886, 6).coins(8940, 664, 6)
+       .hang('h_market', 9750).coins(9800, 917, 6)
+       .ramp(10000, F, 10860, 430).coins(10100, 850, 8, -67, 100)
        .ceilramp(10150, -600, 11000, 70).coins(10200, -510, 9, 79, 100)
       // street
        .overpass(-800, 1000, 40)
@@ -206,6 +211,7 @@ addArea({
        .gunship(6800, -420).gunship(9550, -440)
        .ad('sky', 4380).ad('sky', 7250)
        .ad('cortexa', 1750, -330).ad('cortexa', 2850, -540).ad('hogfuel', 5950, -330)
+       .gunship(5250, 880).drone(6100, 700).drone(9300, 900)             // undercity robots
        .metro(1200, 9700, 7)
        .enforcer(1500, 4300)
        .enforcer(7800, 10400, 1.22, 420, true)
@@ -227,20 +233,21 @@ addArea({
        .hole(11300, 700, false, true, false)
       // undercity
        .hang('h_industrial', 1700).hang('h_market', 2100)                  // two hanging in a row
-       .coins(1750, 1180, 5).coins(2150, 1150, 5)
+       .coins(1750, 936, 5).coins(2150, 917, 5)
        .bld('u_facade', 3100, F).bld('u_market', 3600, F)                  // two standing in a row
-       .coins(3140, 740, 6).coins(3640, 760, 6)
+       .coins(3140, 664, 6).coins(3640, 676, 6)
        .hang('h_platform', 4700).bld('u_market', 5400, F)                  // S-curve
-       .coins(4750, 1120, 6).coins(5440, 760, 6)
+       .coins(4750, 899, 6).coins(5440, 676, 6)
        .hang('h_market', 6300).bld('u_facade', 6900, F)                    // S-curve, tighter
-       .coins(6350, 1150, 5).coins(6940, 740, 6)
-       .hang('h_industrial', 8000).coins(8050, 1180, 5)
-       .egg(8480, 1160).coins(8330, 1180, 3)                               // undercity egg, low on the tracks...
-       .rail(8560, 1250, 8755, 700)                                         // ...then an optional ride up to the next hole
+       .coins(6350, 917, 5).coins(6940, 664, 6)
+       .hang('h_industrial', 8000).coins(8050, 936, 5)
+       .egg(8480, 923).coins(8330, 936, 3)                               // undercity egg, low on the tracks...
+       .rail(8560, 979, 8755, 639)                                         // ...then an optional ride up to the next hole
        .bld('u_market', 9200, F).hang('h_platform', 9800).bld('u_facade', 10700, F)
-       .coins(9240, 760, 6).coins(9850, 1120, 6).coins(10740, 740, 6)
+       .coins(9240, 676, 6).coins(9850, 899, 6).coins(10740, 664, 6)
+       .drone(2600, 700).gunship(4200, 850).drone(6000, 900).gunship(7500, 720).drone(10300, 800) // undercity robots
        .metro(1300, 10500, 6)
-       .ramp(11150, F, 11960, 430).coins(11250, 1150, 8, -97, 100)
+       .ramp(11150, F, 11960, 430).coins(11250, 850, 8, -72, 100)
       // street
        .overpass(-800, 1100, 40)
        .coins(300, 300, 6).bld('b_ramen', 600).arc(560, 260, 6, 60)
