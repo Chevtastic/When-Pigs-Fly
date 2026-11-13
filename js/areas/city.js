@@ -90,20 +90,20 @@ addArea({
     build() {
       const b = builder(this.speed);
       b.smog(-800, 9000, -40)
-       .coins(300, -250, 8)
+       .coins(300, -250, 8).ad('sky', 400)                                  // no cruising along the very top
        .bld('b_orion', 1300).coins(1250, -380, 6)                          // a spire to hop
        .drone(2100, -300)
        .ad('sky', 2600).egg(2880, -290).coins(2650, -280, 5)               // under Sky Living
        .ad('cortexa', 3500, -400).egg(3740, -510).coins(3550, -500, 4)     // squeeze above Cortexa
        .drone(4200, -470)
        .bld('b_corptower', 4400).coins(4500, -300, 6)
-       .block(5100, 380, -250, 18, 'deck').block(5600, 380, -250, 18, 'deck').coins(5150, -320, 8)
+       .block(5100, 380, -250, 18, 'deck').block(5600, 380, -250, 18, 'deck').coins(5150, -290, 8).ad('sky', 5300)
        .gunship(6100, -380)                                                // first gunship: watch it blink
        .ad('hogfuel', 6500, -500).coins(6550, -200, 5)
        .bld('b_skyscraper', 7000).ad('sky', 7550)
        .gunship(8000, -250).egg(8420, -540).coins(8200, -520, 4)
        .bld('b_fox', 8500).drone(8900, -350)
-       .coins(9050, -120, 8, 50, 70);                                      // follow the coins down off the smog
+       .ad('sky', 9150).coins(9050, -120, 8, 50, 70);                                      // follow the coins down off the smog
       return b;
     },
   },
@@ -150,7 +150,7 @@ addArea({
       // sky
        .block(3300, 400, -200, 18, 'deck').block(3800, 350, -200, 18, 'deck')
        .coins(3350, -260, 5).coins(3850, -260, 5)
-       .ad('cortexa', 1900, -450).drone(4400, -350).ad('sky', 5900).ad('hogfuel', 7300, -480).drone(8600, -400)
+       .ad('cortexa', 1900, -450).ad('sky', 3000).drone(4400, -350).ad('sky', 5900).ad('hogfuel', 7300, -480).ad('sky', 7950).drone(8600, -400)
        .block(9000, 400, -180, 18, 'deck').coins(9050, -240, 3).egg(9200, -280)  // sky egg, over the last deck
        .ceilramp(9900, -600, 10750, 70).coins(9950, -510, 9, 79, 100)
       // the bike Enforcer, mid-level
@@ -205,12 +205,12 @@ addArea({
       // sky
        .block(3250, 360, -200, 18, 'deck').block(3700, 360, -200, 18, 'deck').egg(3650, -300)
        .coins(2480, -380, 4).coins(3300, -260, 5).coins(4900, -260, 6).coins(5600, -300, 6)
-       .block(8650, 400, -150, 18, 'deck').block(9150, 400, -150, 18, 'deck').egg(9100, -330)
+       .block(8650, 400, -150, 18, 'deck').block(9150, 400, -150, 18, 'deck').egg(9100, -280)
        .coins(7900, -220, 6).coins(8700, -200, 6).coins(9200, -200, 6)
        .drone(3550, -430).drone(5400, -300).drone(8250, -360)
        .gunship(6800, -420).gunship(9550, -440)
-       .ad('sky', 4380).ad('sky', 7250)
-       .ad('cortexa', 1750, -330).ad('cortexa', 2850, -540).ad('hogfuel', 5950, -330)
+       .ad('sky', 2900).ad('sky', 4380).ad('sky', 7250).ad('sky', 8650)
+       .ad('cortexa', 1750, -330).ad('hogfuel', 5950, -330)
        .gunship(5250, 880).drone(6100, 700).drone(9300, 900)             // undercity robots
        .metro(1200, 9700, 7)
        .enforcer(1500, 4300)
@@ -264,8 +264,9 @@ addArea({
       // sky
        .ad('sky', 1900).ad('cortexa', 3000, -470).drone(3700, -330)
        .block(4000, 420, -200, 18, 'deck').egg(4200, -300).coins(4040, -260, 5)
-       .gunship(5600, -420).ad('hogfuel', 6100, -500).ad('sky', 7300)
-       .drone(8400, -380).gunship(9300, -450)
+       .ad('sky', 3950).ad('sky', 5150)
+       .gunship(5850, -420).ad('hogfuel', 6100, -500).ad('sky', 7300)
+       .drone(8400, -380).ad('sky', 8700).gunship(9500, -450)
        .ad('cortexa', 10500, -480)
        .ceilramp(11300, -600, 12150, 70).coins(11350, -510, 9, 79, 100)
       // both Enforcers

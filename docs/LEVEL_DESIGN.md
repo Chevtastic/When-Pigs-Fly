@@ -97,6 +97,9 @@ Hitboxes sit slightly inside the art so near misses are forgiven:
 ## 6. Placement rules
 
 - **Sky Living** always hangs from the very top of the map (`ad('sky', x)`); it exists to force players to fly down.
+  It is solid right up to the ceiling (chains included), so it's the tool for breaking up the top lane: in a level
+  with a sky, nobody should get more than ~2,500px of free cruising along the ceiling. Keep coins, eggs, tower roofs
+  and other billboards clear of the gap under it (the pig needs to be at y >= level.top + 289 to pass).
   Only its own chains show.
 - **Cortexa / HogFuel** float anywhere in the sky. Keep ~70 px of clearance from tower spires and decks.
 - **Undercity rhythm**: vary it. Mix two hanging in a row (stay low), two standing in a row (stay high), tight

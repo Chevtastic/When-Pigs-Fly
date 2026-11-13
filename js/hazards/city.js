@@ -258,8 +258,11 @@ const ADS = {
 };
 defineBuild('ad', (b, kind, x, y) => {
   const A = ADS[kind], [l, t, r, bt] = A.box;
-  if (kind === 'sky') y = level.top; // always hangs from the very top
-  geoOf(b).solids.push({ kind: 'hit', nocam: true, x: x + A.w * l, w: A.w * (r - l), y: y + A.h * t, h: A.h * (bt - t) });
+  // Sky Living always hangs from the very top, and its chains count: it's solid right up to the ceiling, so you
+  // can't sneak over it along the top of the map
+  if (kind === 'sky') y = level.top;
+  const hy = kind === 'sky' ? y - 40 : y + A.h * t;
+  geoOf(b).solids.push({ kind: 'hit', nocam: true, x: x + A.w * l, w: A.w * (r - l), y: hy, h: y + A.h * bt - hy });
   b.add({ t: 'ad', x, w: A.w, y, kind, camTop: kind === 'sky' ? y - 20 : null }); // the camera rises to show all of Sky Living
 });
 defineHazard('ad', {
@@ -269,7 +272,7 @@ defineHazard('ad', {
     const A = ADS[o.kind], x = o.x - camX, im = spr(A.img);
     if (im) drawSpr(im, x, o.y, A.w, A.h);
     else { ctx.fillStyle = '#ff4fd8'; ctx.fillRect(x, o.y, A.w, A.h); }
-    if (showHitboxes) { const [l, t, r, bt] = A.box; ctx.strokeStyle = '#ff2050'; ctx.lineWidth = 2; ctx.strokeRect(x + A.w * l, o.y + A.h * t, A.w * (r - l), A.h * (bt - t)); }
+    if (showHitboxes) { const [l, t, r, bt] = A.box, ty = o.kind === 'sky' ? o.y : o.y + A.h * t; ctx.strokeStyle = '#ff2050'; ctx.lineWidth = 2; ctx.strokeRect(x + A.w * l, ty, A.w * (r - l), o.y + A.h * bt - ty); }
   },
 });
 

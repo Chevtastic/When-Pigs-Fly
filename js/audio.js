@@ -90,8 +90,14 @@ const PLAYLISTS = {
   beach: ['assets/Music/Bacon Bay.mp3', 'assets/Music/Coconut Cannonballs.mp3'],
   city: ['assets/Music/Porktopia-2099.mp3', 'assets/Music/Never Touch the Ground.mp3', 'assets/Music/Stay Up.mp3'],
 };
+// Every track, for the song picker. save.song = null plays the area's playlist ("Auto"); a track path puts that
+// track on repeat everywhere.
+const TRACKS = [...new Set(Object.values(PLAYLISTS).flat())];
+const trackName = s => s ? decodeURI(s).replace(/^.*\//, '').replace(/\.\w+$/, '').replace(/-/g, ' ') : 'Auto';
+const SOLO = Object.fromEntries(TRACKS.map(s => [s, [s]])); // one stable list per track (followMusic compares lists)
 const music = { el: null, idx: 0, list: null };
 function musicList() {
+  if (SOLO[save.song]) return SOLO[save.song];
   const a = ['playing', 'dead', 'win', 'paused'].includes(state) ? level.area : state === 'area' ? map.area : null;
   return PLAYLISTS[a && a.id] || PLAYLISTS.default;
 }
@@ -134,6 +140,15 @@ function setVolume(v, store = true) {
   document.querySelectorAll('.volBtn').forEach(b => { b.textContent = !pct ? '🔇' : pct < 40 ? '🔈' : pct < 75 ? '🔉' : '🔊'; });
   syncMusic();
   if (store) persist();
+}
+// Song picker: step through Auto + every track (dir = +1 / -1)
+function stepSong(dir, store = true) {
+  const opts = [null, ...TRACKS], i = Math.max(0, opts.indexOf(SOLO[save.song] ? save.song : null));
+  if (dir) save.song = opts[(i + dir + opts.length) % opts.length];
+  const label = trackName(SOLO[save.song] ? save.song : null);
+  document.querySelectorAll('.songName').forEach(n => { n.textContent = label; n.title = label; });
+  followMusic();
+  if (dir && store) persist();
 }
 function toggleMute() { setVolume(save.volume > 0 ? 0 : lastVolume); }
 function oinkLite(d) { tone(500, 300, 0.12, 'sawtooth', 0.05, d); }

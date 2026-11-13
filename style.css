@@ -210,6 +210,27 @@ body:not(.is-ios) .iosTip { display: none !important; }
   background: #fff; border: 3px solid #5a2340; box-shadow: 0 2px 0 #2c1020;
 }
 
+/* song picker (added under every volume slider) */
+.song {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: #ffe1ea; border-radius: 14px; padding: 4px 6px 4px 10px;
+  box-shadow: 0 5px 0 #d9718f;
+  font-family: system-ui, sans-serif; font-weight: 800; font-size: clamp(12px, 1.5cqw, 15px);
+}
+#pause .song { margin: 8px 0 2px; }
+.song .songIcon { font-size: 1.1em; }
+.song button {
+  padding: 0; width: 1.9em; height: 1.9em; font-size: clamp(11px, 1.4cqw, 14px);
+  background: transparent; box-shadow: none; display: grid; place-items: center;
+}
+.song button:active { transform: scale(0.85); }
+.song .songName {
+  width: clamp(130px, 17cqw, 180px); text-align: center;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.volPop { display: flex; flex-direction: column; align-items: stretch; gap: 10px; }
+.volPop .song { box-shadow: 0 5px 0 #d9718f, 0 8px 22px rgba(40, 10, 30, 0.35); }
+
 /* volume dropdown on the island and area screens: a speaker button that opens the slider */
 .volDrop { position: relative; flex: none; }
 .volBtn { font-size: clamp(16px, 2.2cqw, 22px); }
