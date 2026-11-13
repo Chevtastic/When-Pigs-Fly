@@ -107,6 +107,16 @@ document.querySelectorAll('.vol').forEach(w => {
   slider.addEventListener('change', () => { persist(); slider.blur(); if (save.volume > 0) sfx.coin(); });
   w.querySelector('.volIcon').addEventListener('click', () => { blurAll(); toggleMute(); });
 });
+// a song picker under every volume slider: ◀ track name ▶ ("Auto" = the music for where you are)
+document.querySelectorAll('.vol').forEach(w => {
+  const s = document.createElement('div');
+  s.className = 'song';
+  s.innerHTML = '<span class="songIcon" aria-hidden="true">♪</span><button class="songPrev" aria-label="Previous song">◀</button>'
+    + '<span class="songName" aria-live="polite">Auto</span><button class="songNext" aria-label="Next song">▶</button>';
+  s.querySelector('.songPrev').addEventListener('click', () => { blurAll(); audio(); startMusic(); stepSong(-1); });
+  s.querySelector('.songNext').addEventListener('click', () => { blurAll(); audio(); startMusic(); stepSong(1); });
+  w.after(s);
+});
 // speaker buttons on the island and area screens open a volume slider; tapping anywhere else closes it
 function closeVolPops() { document.querySelectorAll('.volPop').forEach(p => p.classList.add('hidden')); document.querySelectorAll('.volBtn').forEach(b => b.setAttribute('aria-expanded', 'false')); }
 document.querySelectorAll('.volDrop').forEach(d => {
@@ -195,6 +205,7 @@ addEventListener('keydown', e => {
   else if (e.code === 'KeyP' || (e.code === 'Escape' && !shopOpen)) togglePause();
   else if (e.code === 'Escape' && shopOpen) closeShop();
   else if (e.code === 'KeyM') toggleMute();
+  else if (e.code === 'KeyN' && !e.repeat) stepSong(e.shiftKey ? -1 : 1);
   else if (e.code === 'KeyF') toggleFullscreen();
   else if (e.code === 'KeyR' && (state === 'playing' || state === 'dead')) resetAttempt();
   else if (e.code === 'Enter' && state === 'win' && winT > 1.6 && !shopOpen) nextLevel();
@@ -264,6 +275,7 @@ function frame(now) {
   requestAnimationFrame(frame);
 }
 setVolume(save.volume, false);
+stepSong(0);
 showMenu();
 // Music plays from the main menu. Browsers block sound until the first tap/click/key,
 // so try right away and again on the first interaction.
